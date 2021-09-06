@@ -27,7 +27,9 @@ if dber!=nil {
 ```
 
 benchmark compare to other
+
 write benchmark
+
 ordefile32 write 1 million speed test screenshot:
 ![orderfile321millionwrite_ok](https://user-images.githubusercontent.com/89308109/132252057-2b5a2db1-1a17-477b-b6cf-55398b209d92.png)
 
@@ -42,9 +44,13 @@ orderfilepeta write 1 million speed test screenshot:
 
 
 orderfile32 write 1 million item use 7.1 second.
+
 badger write 1 million item use 26.7 second.
+
 bolt write 0.2 million item use 90 second.
+
 orderfilepeta write 1 million item use 15.9 second.
+
 so orderfile32 if the fastest writing database.the large database orderfilepeta is fast than badger.
 
 
@@ -69,15 +75,23 @@ ordefilepeta read 1 million times speed test screenshot:
 
 
 after test get:
+
 orderfile32 read 1 million items first time read use 3.9 second. second time read use 3.0 second.
+
 badger read 1 million items use 6.5 second.
-bolt read 0.2 million items use 0.5 second
-orderfilepeta read 1 million items first read
+
+bolt read 0.2 million items use 0.5 second.
+
+orderfilepeta read 1 million items first read.
+
 use 6.5 second. second read use 6.1 second.
 
 so if bolt read 1 million item will use 2.5 second.
+
 so bolt is the fastest reading database.
+
 compare orderfile32 with badger.orderfile32 is almost two times faster than badger.
+
 compare orderfilepeta with badger. they almost equal.
 
 
@@ -96,12 +110,17 @@ orderfilepeta 1 million item file size scrrenshot:
 
 
 orderfile32 1 million items database file size is 19mb.
+
 badger 1 million items database file size is 26.7mb.
-bolt 0.2 million items database file size is 16bm.
+
+bolt 0.2 million items database file size is 16mb.
+
 orderfilepeta 1 million items database file size if 20mb.
 
 bolt 5 times size is 80mb.
+
 so bolt have largest database file size.
+
 orderfile32 and orderfilepeta have smallest database file size.
 
 
@@ -116,6 +135,7 @@ paypal
 捐赠以表示感谢与支持：
 
 支付宝
+
 ![接受捐赠200pixel](https://user-images.githubusercontent.com/89308109/132255156-1926b435-d628-40a8-89a2-1682f2e69a69.png)
 
 
