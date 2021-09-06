@@ -5,6 +5,7 @@ The orderfile32 is standard alone fast key value database. It have two version. 
 
 this project I devloped many years.  now I release it for public. if you like it. you can use it. you will found it is very good.
 
+```go
 install
 got get github.com/epowsal/orderfile32
 
@@ -23,7 +24,7 @@ if dber!=nil {
  }
  fmt.Println(fkey)
  db.Close()
-
+```
 
 benchmark compare to other
 write benchmark
