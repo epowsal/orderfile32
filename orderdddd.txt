@@ -1,0 +1,495 @@
+
+M:/work/tool/liteidex35.4-1.windows-qt5.9.5/bin/dlv.exe connect 127.0.0.1:48968 [M:/work/code/go/src/cangtianapp]
+API server listening at: 127.0.0.1:48968
+cutword intilized.
+htmlutil intilized.
+remove sub dir: news\newsdb
+remove sub dir: news\sc.cri.cn_highlights
+Add Site: news/sc.cri.cn_highlights.txt
+dirpath: news/newsdb
+endpos: 0
+dirpath: news/newsdb/index
+endpos: 0
+usedid, ind [] 0
+-1
+nsite: 0
+usedid, ind [0] 0
+0
+1549730661 NewOrderFile
+RefreshInterval: 10800
+1549730661 nodownloadurldb.PreviousKey([]byte(������������������)
+taskurls: [http://sc.cri.cn/highlights.html]
+add task url: [http://sc.cri.cn/20180821/5214ce44-1b57-c896-f787-b11c24a5a790.html 四川对接“一带一路”的“点线面”  a href]
+1549730662 nodownloadurldb.PushKey http://sc.cri.cn/20180821/5214ce44-1b57-c896-f787-b11c24a5a790.html
+add task url: [http://sc.cri.cn/20180831/e452aacc-861f-24e0-9ea2-b8171463b890.html 打造台商参与“一带一路”建设先行区  a href]
+1549730662 nodownloadurldb.PushKey http://sc.cri.cn/20180831/e452aacc-861f-24e0-9ea2-b8171463b890.html
+add task url: [http://sc.cri.cn/20180831/e4134430-fd3d-fa5c-ba3d-8ed2165ff671.html 国际化成都青白江打造“内陆亚欧门户”  a href]
+1549730662 nodownloadurldb.PushKey http://sc.cri.cn/20180831/e4134430-fd3d-fa5c-ba3d-8ed2165ff671.html
+add task url: [http://sc.cri.cn/20180927/926bda3b-7652-9bc3-b935-a9dd965cfb8e.html “一带一路”绿色城市合作论坛遂宁举行  a href]
+1549730662 nodownloadurldb.PushKey http://sc.cri.cn/20180927/926bda3b-7652-9bc3-b935-a9dd965cfb8e.html
+add task url: [http://sc.cri.cn/20180815/45a95277-367c-3bb4-e6df-67433b894caf.html 服务自贸试验区 四川银行业出新招  a href]
+1549730662 nodownloadurldb.PushKey http://sc.cri.cn/20180815/45a95277-367c-3bb4-e6df-67433b894caf.html
+add task url: [http://sc.cri.cn/20181015/65b985fe-3c96-acec-3bbc-730ddf2c5ec8.html 自贸试验区首笔保税融资租赁业务诞生  a href]
+1549730662 nodownloadurldb.PushKey http://sc.cri.cn/20181015/65b985fe-3c96-acec-3bbc-730ddf2c5ec8.html
+add task url: [http://sc.cri.cn/20181119/ea692cb9-b26b-e502-72e4-e9d47c2613f1.html 截至9月自贸试验区新设外企522家  a href]
+1549730662 nodownloadurldb.PushKey http://sc.cri.cn/20181119/ea692cb9-b26b-e502-72e4-e9d47c2613f1.html
+add task url: [http://sc.cri.cn/20190107/fb4abf5d-8129-6be5-44f6-195d66929e8c.html 天府新区法院​受理首起案件  a href]
+1549730662 nodownloadurldb.PushKey http://sc.cri.cn/20190107/fb4abf5d-8129-6be5-44f6-195d66929e8c.html
+add task url: [http://sc.cri.cn/20190118/44e92df2-5b1c-aa96-d19c-234ab01f252a.html 41位大咖围坐 为自贸试验区发展把脉  a href]
+1549730662 nodownloadurldb.PushKey http://sc.cri.cn/20190118/44e92df2-5b1c-aa96-d19c-234ab01f252a.html
+add task url: [http://sc.cri.cn/20190123/eba6b60a-ecf2-57ac-c4b9-b1e66923bb72.html 第十八届世界警察和消防员运动会  a href]
+1549730662 nodownloadurldb.PushKey http://sc.cri.cn/20190123/eba6b60a-ecf2-57ac-c4b9-b1e66923bb72.html
+add task url: [http://sc.cri.cn/20190123/84b5fdba-554d-1177-157e-2d7c8d5290b4.html 省政府工作报告 2019年四川怎么干  a href]
+1549730662 nodownloadurldb.PushKey http://sc.cri.cn/20190123/84b5fdba-554d-1177-157e-2d7c8d5290b4.html
+add task url: [http://sc.cri.cn/20190125/a0bcf08d-3b82-3bb5-c1dd-f585aea5afc6.html “寿苏会”纪念苏东坡诞辰982周年  a href]
+1549730662 nodownloadurldb.PushKey http://sc.cri.cn/20190125/a0bcf08d-3b82-3bb5-c1dd-f585aea5afc6.html
+add task url: [http://sc.cri.cn/20190201/4e0910bd-26d1-a319-c377-3d5ab327b944.html 一图看懂2018年凉山州脱贫攻坚总结  a href]
+1549730662 nodownloadurldb.PushKey http://sc.cri.cn/20190201/4e0910bd-26d1-a319-c377-3d5ab327b944.html
+add task url: [http://sc.cri.cn/20190202/7065dd18-f076-aa98-d033-bcaaefc15876.html "大凉山苦荞茶"扶贫公益广告  a href]
+1549730662 nodownloadurldb.PushKey http://sc.cri.cn/20190202/7065dd18-f076-aa98-d033-bcaaefc15876.html
+add task url: [http://sc.cri.cn/20190123/84b5fdba-554d-1177-157e-2d7c8d5290b4.html 2019年四川怎么干  a href]
+1549730662 nodownloadurldb.PushKey http://sc.cri.cn/20190123/84b5fdba-554d-1177-157e-2d7c8d5290b4.html
+add task url: [http://sc.cri.cn/20190123/84b5fdba-554d-1177-157e-2d7c8d5290b4.html   a href]
+1549730662 nodownloadurldb.PushKey http://sc.cri.cn/20190123/84b5fdba-554d-1177-157e-2d7c8d5290b4.html
+add task url: [http://sc.cri.cn/20190109/f8423905-9d2c-6dd0-ed1e-f2d652272017.html 成都探索公园城市建设的“年度答卷”  a href]
+1549730662 nodownloadurldb.PushKey http://sc.cri.cn/20190109/f8423905-9d2c-6dd0-ed1e-f2d652272017.html
+add task url: [http://sc.cri.cn/20190118/324339c3-bf82-45ba-b937-c6caa7267a6b.html 龙头集聚带动 强省会时代的成都表达  a href]
+1549730662 nodownloadurldb.PushKey http://sc.cri.cn/20190118/324339c3-bf82-45ba-b937-c6caa7267a6b.html
+add task url: [http://sc.cri.cn/20190131/b90c6090-ebf9-985a-5dee-3f22c61af96a.html 蓉平：防流感更要防网络谣言  a href]
+1549730662 nodownloadurldb.PushKey http://sc.cri.cn/20190131/b90c6090-ebf9-985a-5dee-3f22c61af96a.html
+add task url: [http://sc.cri.cn/20190202/8065cbb2-a204-3f88-3690-f4b48460ca7e.html 成都如何以蓬勃态势走向世界城市  a href]
+1549730662 nodownloadurldb.PushKey http://sc.cri.cn/20190202/8065cbb2-a204-3f88-3690-f4b48460ca7e.html
+add task url: [http://sc.cri.cn/20190203/e0cb6421-745d-2db2-e9d5-2e99756a9a14.html 不变的心意，在成都过个不一样的春节  a href]
+1549730662 nodownloadurldb.PushKey http://sc.cri.cn/20190203/e0cb6421-745d-2db2-e9d5-2e99756a9a14.html
+add task url: [http://sc.cri.cn/20181208/d30b213a-a954-e40c-c78c-876845b8a96e.html 从全城赏银杏看成都诗意生活  a href]
+1549730662 nodownloadurldb.PushKey http://sc.cri.cn/20181208/d30b213a-a954-e40c-c78c-876845b8a96e.html
+add task url: [http://sc.cri.cn/20181208/d30b213a-a954-e40c-c78c-876845b8a96e.html   a href]
+1549730662 nodownloadurldb.PushKey http://sc.cri.cn/20181208/d30b213a-a954-e40c-c78c-876845b8a96e.html
+add task url: [http://sc.cri.cn/20190131/8fd0ad95-f7b1-366a-b153-56e85f0d2293.html “成都消费”助力国际消费中心城市建设  a href]
+1549730662 nodownloadurldb.PushKey http://sc.cri.cn/20190131/8fd0ad95-f7b1-366a-b153-56e85f0d2293.html
+add task url: [http://sc.cri.cn/20190201/8160c5bf-e5c7-9f8e-716b-6b5f3378bc06.html “都江堰十大网络正能量”榜单出炉  a href]
+1549730662 nodownloadurldb.PushKey http://sc.cri.cn/20190201/8160c5bf-e5c7-9f8e-716b-6b5f3378bc06.html
+add task url: [http://sc.cri.cn/20190201/352c3ac1-28e1-5a03-aa07-bab22560b182.html 都江堰发布“十大新晋网红打卡地”榜单  a href]
+1549730662 nodownloadurldb.PushKey http://sc.cri.cn/20190201/352c3ac1-28e1-5a03-aa07-bab22560b182.html
+add task url: [http://sc.cri.cn/20190202/6cdc8198-c8d7-fcd9-df8c-98fd9b9b807a.html 成都彭州助产士跪姿托举胎头护母婴平安  a href]
+1549730662 nodownloadurldb.PushKey http://sc.cri.cn/20190202/6cdc8198-c8d7-fcd9-df8c-98fd9b9b807a.html
+add task url: [http://sc.cri.cn/20190202/bdfb7fea-beed-6f48-4387-2ce15748b14b.html 新金牛公园开园迎客 花团锦簇贺新春  a href]
+1549730662 nodownloadurldb.PushKey http://sc.cri.cn/20190202/bdfb7fea-beed-6f48-4387-2ce15748b14b.html
+add task url: [http://sc.cri.cn/20190202/bdfb7fea-beed-6f48-4387-2ce15748b14b.html   a href]
+1549730662 nodownloadurldb.PushKey http://sc.cri.cn/20190202/bdfb7fea-beed-6f48-4387-2ce15748b14b.html
+add task url: [http://sc.cri.cn/20180723/16a4e4c9-899d-b7a2-59a8-47dd37a5ba7e.html 中央第四巡视组向四川省委反馈巡视情况  a href]
+1549730662 nodownloadurldb.PushKey http://sc.cri.cn/20180723/16a4e4c9-899d-b7a2-59a8-47dd37a5ba7e.html
+add task url: [http://sc.cri.cn/20180725/bf96f2c8-4a83-d107-1e93-cefee1a5c957.html 四川省十三届人大常委会举行第五次会议  a href]
+1549730662 nodownloadurldb.PushKey http://sc.cri.cn/20180725/bf96f2c8-4a83-d107-1e93-cefee1a5c957.html
+add task url: [http://sc.cri.cn/20180808/a71dafc1-bbe6-e31d-b0c4-4ed17b0c1939.html 省政府批准北川等15个县(市区)退出贫困县  a href]
+1549730662 nodownloadurldb.PushKey http://sc.cri.cn/20180808/a71dafc1-bbe6-e31d-b0c4-4ed17b0c1939.html
+add task url: [http://sc.cri.cn/20180813/8c6f4f73-ec10-c964-10ec-f35accfabce6.html [央媒看四川]四川 装上电子信息产业新引擎  a href]
+1549730662 nodownloadurldb.PushKey http://sc.cri.cn/20180813/8c6f4f73-ec10-c964-10ec-f35accfabce6.html
+add task url: [http://sc.cri.cn/20180815/7b60cb0b-902c-96eb-52b3-ffc33b098aab.html 四川省评定并公布第三批全省PPP示范项目  a href]
+1549730662 nodownloadurldb.PushKey http://sc.cri.cn/20180815/7b60cb0b-902c-96eb-52b3-ffc33b098aab.html
+add task url: [http://sc.cri.cn/20180823/aee3a3b6-b167-4b78-677f-612cce1e1310.html 省长尹力：推动成都平原经济区高质量发展  a href]
+1549730662 nodownloadurldb.PushKey http://sc.cri.cn/20180823/aee3a3b6-b167-4b78-677f-612cce1e1310.html
+add task url: [http://sc.cri.cn/20180824/692c3bb8-a697-fe9f-dd58-ebb3e3585843.html 国务院督查组来川实地督查 衔接会在成都召开  a href]
+1549730662 nodownloadurldb.PushKey http://sc.cri.cn/20180824/692c3bb8-a697-fe9f-dd58-ebb3e3585843.html
+add task url: [http://sc.cri.cn/20180829/8b5cad0f-fc69-775d-53d4-8ec76c4f6429.html 四川备战第四次全国经济普查查实二三产业家底  a href]
+1549730662 nodownloadurldb.PushKey http://sc.cri.cn/20180829/8b5cad0f-fc69-775d-53d4-8ec76c4f6429.html
+add task url: [http://sc.cri.cn/20180831/7b9e5137-2408-1c48-2a2e-159025d6c876.html 四川举办党外厅级领导干部政治建设专题培训班  a href]
+1549730662 nodownloadurldb.PushKey http://sc.cri.cn/20180831/7b9e5137-2408-1c48-2a2e-159025d6c876.html
+add task url: [http://sc.cri.cn/20180831/e56ec5d8-3a8a-915e-a3f7-17a3c332ef86.html 四川省委书记彭清华会见浪潮集团董事长孙丕恕  a href]
+1549730662 nodownloadurldb.PushKey http://sc.cri.cn/20180831/e56ec5d8-3a8a-915e-a3f7-17a3c332ef86.html
+add task url: [http://sc.cri.cn/20180906/cedba55c-bb1f-47ed-8317-e4d93d70c78c.html 四川：“川台 70 条”促台胞共享发展机遇  a href]
+1549730662 nodownloadurldb.PushKey http://sc.cri.cn/20180906/cedba55c-bb1f-47ed-8317-e4d93d70c78c.html
+add task url: [http://sc.cri.cn/20180912/4b367895-78b4-f168-63b7-8956ab9f7e6b.html 省长尹力会见乌拉圭副总统托波兰斯基  a href]
+1549730662 nodownloadurldb.PushKey http://sc.cri.cn/20180912/4b367895-78b4-f168-63b7-8956ab9f7e6b.html
+add task url: [http://sc.cri.cn/20180914/7450ea0e-8f7b-1089-59c0-df09b472ad32.html 彭清华在蓉会见来川调研的自然资源部部长陆昊  a href]
+1549730662 nodownloadurldb.PushKey http://sc.cri.cn/20180914/7450ea0e-8f7b-1089-59c0-df09b472ad32.html
+add task url: [http://sc.cri.cn/20180917/ba2b74df-2807-9bd2-7a08-30f57be487c8.html 四川学习贯彻省委十一届三次全会精神宣讲综述  a href]
+1549730662 nodownloadurldb.PushKey http://sc.cri.cn/20180917/ba2b74df-2807-9bd2-7a08-30f57be487c8.html
+add task url: [http://sc.cri.cn/20180921/8530415b-1a04-5b5a-4625-26122f7bfc98.html 省级政府质量工作考核 四川连续3年实现提升  a href]
+1549730662 nodownloadurldb.PushKey http://sc.cri.cn/20180921/8530415b-1a04-5b5a-4625-26122f7bfc98.html
+add task url: [http://sc.cri.cn/20180925/c378f146-a0a8-ad55-9c0c-d7b1651d9a4b.html 四川力争到2020年建成10个“百亿园区”  a href]
+1549730662 nodownloadurldb.PushKey http://sc.cri.cn/20180925/c378f146-a0a8-ad55-9c0c-d7b1651d9a4b.html
+add task url: [http://sc.cri.cn/20180926/c2c67246-115a-a6ed-4877-2c4948e39310.html 弘扬爱国奋斗精神 做四川发展同路人  a href]
+1549730662 nodownloadurldb.PushKey http://sc.cri.cn/20180926/c2c67246-115a-a6ed-4877-2c4948e39310.html
+add task url: [http://sc.cri.cn/20180928/263d78f8-8cf3-b9fb-bcbf-d514f608bc13.html 四川省妇女第十三次代表大会闭幕  a href]
+1549730662 nodownloadurldb.PushKey http://sc.cri.cn/20180928/263d78f8-8cf3-b9fb-bcbf-d514f608bc13.html
+add task url: [http://sc.cri.cn/20180930/ea6cc3e4-dc7b-f95e-717d-e989d956a6a4.html 彭清华对开创党建和组织工作新局面提要求  a href]
+1549730662 nodownloadurldb.PushKey http://sc.cri.cn/20180930/ea6cc3e4-dc7b-f95e-717d-e989d956a6a4.html
+add task url: [http://sc.cri.cn/20181008/c7917509-7cee-1a8d-e849-fc4fa718aa27.html 大学习大讨论大调研活动 留下浓墨重彩的一笔  a href]
+1549730662 nodownloadurldb.PushKey http://sc.cri.cn/20181008/c7917509-7cee-1a8d-e849-fc4fa718aa27.html
+add task url: [http://sc.cri.cn/20181009/c53de50c-7fd9-f0de-a524-1b3a6d8fe981.html 四川激发航空航天产业新增长点  a href]
+1549730662 nodownloadurldb.PushKey http://sc.cri.cn/20181009/c53de50c-7fd9-f0de-a524-1b3a6d8fe981.html
+add task url: [http://sc.cri.cn/20181017/fc14d8f3-9ad8-10f0-490f-1cd7b49f630c.html 评论：讲好四川故事 传播好四川声音  a href]
+1549730662 nodownloadurldb.PushKey http://sc.cri.cn/20181017/fc14d8f3-9ad8-10f0-490f-1cd7b49f630c.html
+add task url: [http://sc.cri.cn/20181019/77e2defd-ddff-1f19-2d3b-bd2693d94272.html 尹力：践行绿色发展理念 建设美丽熊猫家园  a href]
+1549730662 nodownloadurldb.PushKey http://sc.cri.cn/20181019/77e2defd-ddff-1f19-2d3b-bd2693d94272.html
+add task url: [http://sc.cri.cn/20181022/1d649b47-8dbf-ca1e-39f4-d4f817187bea.html 四川出台34项财政金融互动政策 有效期3年  a href]
+1549730662 nodownloadurldb.PushKey http://sc.cri.cn/20181022/1d649b47-8dbf-ca1e-39f4-d4f817187bea.html
+add task url: [http://sc.cri.cn/20181025/8396f2d2-aaf0-eece-68bb-1a3a5878f7ae.html 彭清华会见亚美咨询公司董事长尼尔·布什  a href]
+1549730662 nodownloadurldb.PushKey http://sc.cri.cn/20181025/8396f2d2-aaf0-eece-68bb-1a3a5878f7ae.html
+add task url: [http://sc.cri.cn/20181030/3fc9a216-8435-d549-e875-58de574639cd.html 央媒看四川|一场农民工座谈会释放出的信号  a href]
+1549730662 nodownloadurldb.PushKey http://sc.cri.cn/20181030/3fc9a216-8435-d549-e875-58de574639cd.html
+add task url: [http://sc.cri.cn/20181031/8830805e-2266-63b8-1f55-34222ba45e13.html 央媒看四川|四川创新改革试验区建设实现多赢  a href]
+1549730662 nodownloadurldb.PushKey http://sc.cri.cn/20181031/8830805e-2266-63b8-1f55-34222ba45e13.html
+add task url: [http://sc.cri.cn/20181101/595f8b6c-923d-b561-257a-71dcab26d6ac.html 尹力会见加拿大环境与气候变化部部长麦肯娜  a href]
+1549730662 nodownloadurldb.PushKey http://sc.cri.cn/20181101/595f8b6c-923d-b561-257a-71dcab26d6ac.html
+add task url: [http://sc.cri.cn/20181105/c9b7b0f2-b939-ca9d-12ee-f399319ccf51.html 中央环保督察组向四川移交首批信访件67件  a href]
+1549730662 nodownloadurldb.PushKey http://sc.cri.cn/20181105/c9b7b0f2-b939-ca9d-12ee-f399319ccf51.html
+add task url: [http://sc.cri.cn/20181107/76dcf3f0-aaa1-c81b-961c-a7d7b8d8e4b4.html 四川多举措保障工程建设领域农民工工资发放  a href]
+1549730662 nodownloadurldb.PushKey http://sc.cri.cn/20181107/76dcf3f0-aaa1-c81b-961c-a7d7b8d8e4b4.html
+add task url: [http://sc.cri.cn/20181112/d375d4fe-586b-51c2-504d-e8b69cd0dea4.html 四川省互联网信息办公室挂牌成立  a href]
+1549730662 nodownloadurldb.PushKey http://sc.cri.cn/20181112/d375d4fe-586b-51c2-504d-e8b69cd0dea4.html
+add task url: [http://sc.cri.cn/20181116/2e32a7f4-bd45-3793-44ed-c05c1b9e845c.html 四川政协系统如何做好党建工作 彭清华提要求  a href]
+1549730662 nodownloadurldb.PushKey http://sc.cri.cn/20181116/2e32a7f4-bd45-3793-44ed-c05c1b9e845c.html
+add task url: [http://sc.cri.cn/20181119/830936f9-7ff2-74d2-adc6-415f80ecb266.html 四川省长尹力： 扎实推进大熊猫国家公园建设  a href]
+1549730662 nodownloadurldb.PushKey http://sc.cri.cn/20181119/830936f9-7ff2-74d2-adc6-415f80ecb266.html
+add task url: [http://sc.cri.cn/20181129/e670d5b2-3225-d1e4-21e1-3a812565f14d.html 第六届中国网络视听大会在成都隆重开幕  a href]
+1549730662 nodownloadurldb.PushKey http://sc.cri.cn/20181129/e670d5b2-3225-d1e4-21e1-3a812565f14d.html
+add task url: [http://sc.cri.cn/20181204/ec32822f-43ad-f24d-c400-d317477a7220.html 彭清华听取统一战线建言献策助推高质量发展  a href]
+1549730662 nodownloadurldb.PushKey http://sc.cri.cn/20181204/ec32822f-43ad-f24d-c400-d317477a7220.html
+add task url: [http://sc.cri.cn/20181218/76169686-b905-5d09-4cfe-9b7b121d7c00.html 尹力赴宜宾指导抗震救灾等重点工作  a href]
+1549730662 nodownloadurldb.PushKey http://sc.cri.cn/20181218/76169686-b905-5d09-4cfe-9b7b121d7c00.html
+add task url: [http://sc.cri.cn/20181219/56013f44-d691-3877-9a36-6a6c1db142ae.html 范锐平会见法国蓬皮杜国家艺术文化中心客人  a href]
+1549730662 nodownloadurldb.PushKey http://sc.cri.cn/20181219/56013f44-d691-3877-9a36-6a6c1db142ae.html
+add task url: [http://sc.cri.cn/20181226/ef5d4ec3-b61d-76f4-7f75-6132c1955176.html [央媒看四川]四川让农民工务工创业轻装上阵  a href]
+1549730662 nodownloadurldb.PushKey http://sc.cri.cn/20181226/ef5d4ec3-b61d-76f4-7f75-6132c1955176.html
+add task url: [http://sc.cri.cn/20190107/9d6cb5b5-9b35-5497-ecc2-cbd07985a19c.html 《关于深化教育体制机制改革的实施意见》印发  a href]
+1549730662 nodownloadurldb.PushKey http://sc.cri.cn/20190107/9d6cb5b5-9b35-5497-ecc2-cbd07985a19c.html
+add task url: [http://sc.cri.cn/20190118/43d6f471-db75-b743-4cd8-d94ad7d4fa1d.html 1月18日起四川省司法厅取消28项证明材料  a href]
+1549730662 nodownloadurldb.PushKey http://sc.cri.cn/20190118/43d6f471-db75-b743-4cd8-d94ad7d4fa1d.html
+add task url: [http://sc.cri.cn/20190121/6a41173d-2563-b2a8-81d1-9dfae23b3c18.html 四川省委召开蒲波严重违纪违法案警示教育大会  a href]
+1549730662 nodownloadurldb.PushKey http://sc.cri.cn/20190121/6a41173d-2563-b2a8-81d1-9dfae23b3c18.html
+add task url: [http://sc.cri.cn/20190122/128a479e-549e-f806-b99c-4a5117be4859.html 2019年四川省政府工作报告（全文）  a href]
+1549730662 nodownloadurldb.PushKey http://sc.cri.cn/20190122/128a479e-549e-f806-b99c-4a5117be4859.html
+add task url: [http://sc.cri.cn/20190128/11e8dc66-5a23-b33a-1966-36761d3f9cf5.html 接近6000亿 四川省外贸规模创新高  a href]
+1549730662 nodownloadurldb.PushKey http://sc.cri.cn/20190128/11e8dc66-5a23-b33a-1966-36761d3f9cf5.html
+add task url: [http://sc.cri.cn/20190129/330f8a52-910b-7b78-a922-e196f52e765b.html 省政府常务会议原则通过四川城镇住房发展规划  a href]
+1549730662 nodownloadurldb.PushKey http://sc.cri.cn/20190129/330f8a52-910b-7b78-a922-e196f52e765b.html
+add task url: [http://sc.cri.cn/20190201/1dcd28be-5279-9709-2abf-de9dd5fe5de6.html 四川省财政教育经费向深度贫困地区倾斜  a href]
+1549730662 nodownloadurldb.PushKey http://sc.cri.cn/20190201/1dcd28be-5279-9709-2abf-de9dd5fe5de6.html
+1549730662 nodownloadurldb.RmKey http://sc.cri.cn/highlights.html
+close set isquit
+flush 1
+orderf.bhavenewwrite: true true news/sc.cri.cn_highlights/sitecurstate.orderfile
+intempcnt: 0
+BLockFlush end
+flush 2
+flush end
+close set isquit
+flush 1
+orderf.bhavenewwrite: true true news/sc.cri.cn_highlights/nodownloadurl.orderfile
+intempcnt: 0
+flush 2
+flush end
+BLockFlush end
+1549730663 nodownloadurldb.Close
+close set isquit
+flush 1
+orderf.bhavenewwrite: false false news/sc.cri.cn_highlights/failedurl.orderfile
+BLockFlush end
+flush 2
+flush end
+orderf.bhavenewwrite: true true news/newsdb/_curdir.headdb
+orderf.bhavenewwrite: true true news/newsdb/index/_curdir.headdb
+orderf.bhavenewwrite: false false news/newsdb/_attrid
+orderf.bhavenewwrite: false false news/newsdb/index/_curdir
+orderf.bhavenewwrite: true true news/newsdb/_curdir
+intempcnt: 0
+intempcnt: 0
+intempcnt: 0
+orderf.bhavenewwrite: true false news/newsdb/_curdir.headdb
+intempcnt: 1
+orderf.bhavenewwrite: true true news/newsdb/_curdir.headdb
+orderf.bhavenewwrite: true false news/newsdb/index/_curdir.headdb
+orderf.bhavenewwrite: false false news/newsdb/_attrid
+orderf.bhavenewwrite: true false news/newsdb/_curdir
+intempcnt: 0
+orderf.bhavenewwrite: false false news/newsdb/index/_curdir
+intempcnt: 0
+intempcnt: 0
+usedid, ind [] 0
+-1
+nsite: 0
+usedid, ind [0] 0
+0
+1549730724 NewOrderFile
+1549730724 nodownloadurldb.PreviousKey([]byte(������������������)
+taskurls: [http://sc.cri.cn/20190203/e0cb6421-745d-2db2-e9d5-2e99756a9a14.html]
+add task url: [http://sc.cri.cn/20180821/5214ce44-1b57-c896-f787-b11c24a5a790.html 四川对接“一带一路”的“点线面”  a href]
+1549730725 nodownloadurldb.PushKey http://sc.cri.cn/20180821/5214ce44-1b57-c896-f787-b11c24a5a790.html
+add task url: [http://sc.cri.cn/20180831/e452aacc-861f-24e0-9ea2-b8171463b890.html 打造台商参与“一带一路”建设先行区  a href]
+1549730725 nodownloadurldb.PushKey http://sc.cri.cn/20180831/e452aacc-861f-24e0-9ea2-b8171463b890.html
+add task url: [http://sc.cri.cn/20180831/e4134430-fd3d-fa5c-ba3d-8ed2165ff671.html 国际化成都青白江打造“内陆亚欧门户”  a href]
+1549730725 nodownloadurldb.PushKey http://sc.cri.cn/20180831/e4134430-fd3d-fa5c-ba3d-8ed2165ff671.html
+add task url: [http://sc.cri.cn/20180927/926bda3b-7652-9bc3-b935-a9dd965cfb8e.html “一带一路”绿色城市合作论坛遂宁举行  a href]
+1549730725 nodownloadurldb.PushKey http://sc.cri.cn/20180927/926bda3b-7652-9bc3-b935-a9dd965cfb8e.html
+add task url: [http://sc.cri.cn/20180815/45a95277-367c-3bb4-e6df-67433b894caf.html 服务自贸试验区 四川银行业出新招  a href]
+1549730725 nodownloadurldb.PushKey http://sc.cri.cn/20180815/45a95277-367c-3bb4-e6df-67433b894caf.html
+add task url: [http://sc.cri.cn/20181015/65b985fe-3c96-acec-3bbc-730ddf2c5ec8.html 自贸试验区首笔保税融资租赁业务诞生  a href]
+1549730725 nodownloadurldb.PushKey http://sc.cri.cn/20181015/65b985fe-3c96-acec-3bbc-730ddf2c5ec8.html
+add task url: [http://sc.cri.cn/20181119/ea692cb9-b26b-e502-72e4-e9d47c2613f1.html 截至9月自贸试验区新设外企522家  a href]
+1549730725 nodownloadurldb.PushKey http://sc.cri.cn/20181119/ea692cb9-b26b-e502-72e4-e9d47c2613f1.html
+add task url: [http://sc.cri.cn/20190107/fb4abf5d-8129-6be5-44f6-195d66929e8c.html 天府新区法院​受理首起案件  a href]
+1549730725 nodownloadurldb.PushKey http://sc.cri.cn/20190107/fb4abf5d-8129-6be5-44f6-195d66929e8c.html
+add task url: [http://sc.cri.cn/20190118/44e92df2-5b1c-aa96-d19c-234ab01f252a.html 41位大咖围坐 为自贸试验区发展把脉  a href]
+1549730725 nodownloadurldb.PushKey http://sc.cri.cn/20190118/44e92df2-5b1c-aa96-d19c-234ab01f252a.html
+add task url: [http://sc.cri.cn/20190123/eba6b60a-ecf2-57ac-c4b9-b1e66923bb72.html 第十八届世界警察和消防员运动会  a href]
+1549730725 nodownloadurldb.PushKey http://sc.cri.cn/20190123/eba6b60a-ecf2-57ac-c4b9-b1e66923bb72.html
+add task url: [http://sc.cri.cn/20190123/84b5fdba-554d-1177-157e-2d7c8d5290b4.html 省政府工作报告 2019年四川怎么干  a href]
+1549730725 nodownloadurldb.PushKey http://sc.cri.cn/20190123/84b5fdba-554d-1177-157e-2d7c8d5290b4.html
+add task url: [http://sc.cri.cn/20190125/a0bcf08d-3b82-3bb5-c1dd-f585aea5afc6.html “寿苏会”纪念苏东坡诞辰982周年  a href]
+1549730725 nodownloadurldb.PushKey http://sc.cri.cn/20190125/a0bcf08d-3b82-3bb5-c1dd-f585aea5afc6.html
+add task url: [http://sc.cri.cn/20190201/4e0910bd-26d1-a319-c377-3d5ab327b944.html 一图看懂2018年凉山州脱贫攻坚总结  a href]
+1549730725 nodownloadurldb.PushKey http://sc.cri.cn/20190201/4e0910bd-26d1-a319-c377-3d5ab327b944.html
+add task url: [http://sc.cri.cn/20190202/7065dd18-f076-aa98-d033-bcaaefc15876.html "大凉山苦荞茶"扶贫公益广告  a href]
+1549730725 nodownloadurldb.PushKey http://sc.cri.cn/20190202/7065dd18-f076-aa98-d033-bcaaefc15876.html
+add task url: [http://sc.cri.cn/20190123/84b5fdba-554d-1177-157e-2d7c8d5290b4.html 2019年四川怎么干  a href]
+1549730725 nodownloadurldb.PushKey http://sc.cri.cn/20190123/84b5fdba-554d-1177-157e-2d7c8d5290b4.html
+add task url: [http://sc.cri.cn/20190123/84b5fdba-554d-1177-157e-2d7c8d5290b4.html   a href]
+1549730725 nodownloadurldb.PushKey http://sc.cri.cn/20190123/84b5fdba-554d-1177-157e-2d7c8d5290b4.html
+add task url: [http://sc.cri.cn/20190109/f8423905-9d2c-6dd0-ed1e-f2d652272017.html 成都探索公园城市建设的“年度答卷”  a href]
+1549730725 nodownloadurldb.PushKey http://sc.cri.cn/20190109/f8423905-9d2c-6dd0-ed1e-f2d652272017.html
+add task url: [http://sc.cri.cn/20190118/324339c3-bf82-45ba-b937-c6caa7267a6b.html 龙头集聚带动 强省会时代的成都表达  a href]
+1549730725 nodownloadurldb.PushKey http://sc.cri.cn/20190118/324339c3-bf82-45ba-b937-c6caa7267a6b.html
+add task url: [http://sc.cri.cn/20190131/b90c6090-ebf9-985a-5dee-3f22c61af96a.html 蓉平：防流感更要防网络谣言  a href]
+1549730725 nodownloadurldb.PushKey http://sc.cri.cn/20190131/b90c6090-ebf9-985a-5dee-3f22c61af96a.html
+add task url: [http://sc.cri.cn/20190202/8065cbb2-a204-3f88-3690-f4b48460ca7e.html 成都如何以蓬勃态势走向世界城市  a href]
+1549730725 nodownloadurldb.PushKey http://sc.cri.cn/20190202/8065cbb2-a204-3f88-3690-f4b48460ca7e.html
+add task url: [http://sc.cri.cn/20181208/d30b213a-a954-e40c-c78c-876845b8a96e.html 从全城赏银杏看成都诗意生活  a href]
+1549730725 nodownloadurldb.PushKey http://sc.cri.cn/20181208/d30b213a-a954-e40c-c78c-876845b8a96e.html
+add task url: [http://sc.cri.cn/20181208/d30b213a-a954-e40c-c78c-876845b8a96e.html   a href]
+1549730725 nodownloadurldb.PushKey http://sc.cri.cn/20181208/d30b213a-a954-e40c-c78c-876845b8a96e.html
+add task url: [http://sc.cri.cn/20190131/8fd0ad95-f7b1-366a-b153-56e85f0d2293.html “成都消费”助力国际消费中心城市建设  a href]
+1549730725 nodownloadurldb.PushKey http://sc.cri.cn/20190131/8fd0ad95-f7b1-366a-b153-56e85f0d2293.html
+add task url: [http://sc.cri.cn/20190201/8160c5bf-e5c7-9f8e-716b-6b5f3378bc06.html “都江堰十大网络正能量”榜单出炉  a href]
+1549730725 nodownloadurldb.PushKey http://sc.cri.cn/20190201/8160c5bf-e5c7-9f8e-716b-6b5f3378bc06.html
+add task url: [http://sc.cri.cn/20190201/352c3ac1-28e1-5a03-aa07-bab22560b182.html 都江堰发布“十大新晋网红打卡地”榜单  a href]
+1549730725 nodownloadurldb.PushKey http://sc.cri.cn/20190201/352c3ac1-28e1-5a03-aa07-bab22560b182.html
+add task url: [http://sc.cri.cn/20190202/6cdc8198-c8d7-fcd9-df8c-98fd9b9b807a.html 成都彭州助产士跪姿托举胎头护母婴平安  a href]
+1549730725 nodownloadurldb.PushKey http://sc.cri.cn/20190202/6cdc8198-c8d7-fcd9-df8c-98fd9b9b807a.html
+add task url: [http://sc.cri.cn/20190202/bdfb7fea-beed-6f48-4387-2ce15748b14b.html 新金牛公园开园迎客 花团锦簇贺新春  a href]
+1549730725 nodownloadurldb.PushKey http://sc.cri.cn/20190202/bdfb7fea-beed-6f48-4387-2ce15748b14b.html
+add task url: [http://sc.cri.cn/20190202/bdfb7fea-beed-6f48-4387-2ce15748b14b.html   a href]
+1549730725 nodownloadurldb.PushKey http://sc.cri.cn/20190202/bdfb7fea-beed-6f48-4387-2ce15748b14b.html
+add task url: [http://sc.cri.cn/20190202/7065dd18-f076-aa98-d033-bcaaefc15876.html "大凉山苦荞茶"扶贫公益广告  a href]
+1549730725 nodownloadurldb.PushKey http://sc.cri.cn/20190202/7065dd18-f076-aa98-d033-bcaaefc15876.html
+add task url: [http://sc.cri.cn/20190202/6a6a7224-357d-93b5-c9cc-c71d12f567e5.html 省委书记给大家拜年了！四川举行春节团拜会  a href]
+1549730725 nodownloadurldb.PushKey http://sc.cri.cn/20190202/6a6a7224-357d-93b5-c9cc-c71d12f567e5.html
+add task url: [http://sc.cri.cn/20190203/88444745-9a63-e7dc-9203-6ce2eef06774.html 彭清华与农民工代表亲切座谈  a href]
+1549730725 nodownloadurldb.PushKey http://sc.cri.cn/20190203/88444745-9a63-e7dc-9203-6ce2eef06774.html
+add task url: [http://sc.cri.cn/20190203/1756b803-2d06-8f16-ebe3-a7d277343b36.html 四川省领导率团开展春节走访慰问活动  a href]
+1549730725 nodownloadurldb.PushKey http://sc.cri.cn/20190203/1756b803-2d06-8f16-ebe3-a7d277343b36.html
+1549730725 nodownloadurldb.RmKey http://sc.cri.cn/20190203/e0cb6421-745d-2db2-e9d5-2e99756a9a14.html
+close set isquit
+flush 1
+orderf.bhavenewwrite: false false news/sc.cri.cn_highlights/sitecurstate.orderfile
+BLockFlush end
+flush 2
+flush end
+close set isquit
+flush 1
+orderf.bhavenewwrite: true true news/sc.cri.cn_highlights/nodownloadurl.orderfile
+intempcnt: 0
+BLockFlush end
+flush 2
+flush end
+1549730726 nodownloadurldb.Close
+close set isquit
+flush 1
+orderf.bhavenewwrite: false false news/sc.cri.cn_highlights/failedurl.orderfile
+BLockFlush end
+flush 2
+flush end
+usedid, ind [] 0
+-1
+nsite: 0
+usedid, ind [0] 0
+0
+1549730787 NewOrderFile
+1549730787 nodownloadurldb.PreviousKey([]byte(������������������)
+taskurls: [http://sc.cri.cn/20190203/88444745-9a63-e7dc-9203-6ce2eef06774.html]
+add task url: [http://sc.cri.cn/20180821/5214ce44-1b57-c896-f787-b11c24a5a790.html 四川对接“一带一路”的“点线面”  a href]
+1549730788 nodownloadurldb.PushKey http://sc.cri.cn/20180821/5214ce44-1b57-c896-f787-b11c24a5a790.html
+add task url: [http://sc.cri.cn/20180831/e452aacc-861f-24e0-9ea2-b8171463b890.html 打造台商参与“一带一路”建设先行区  a href]
+1549730788 nodownloadurldb.PushKey http://sc.cri.cn/20180831/e452aacc-861f-24e0-9ea2-b8171463b890.html
+add task url: [http://sc.cri.cn/20180831/e4134430-fd3d-fa5c-ba3d-8ed2165ff671.html 国际化成都青白江打造“内陆亚欧门户”  a href]
+1549730788 nodownloadurldb.PushKey http://sc.cri.cn/20180831/e4134430-fd3d-fa5c-ba3d-8ed2165ff671.html
+add task url: [http://sc.cri.cn/20180927/926bda3b-7652-9bc3-b935-a9dd965cfb8e.html “一带一路”绿色城市合作论坛遂宁举行  a href]
+1549730788 nodownloadurldb.PushKey http://sc.cri.cn/20180927/926bda3b-7652-9bc3-b935-a9dd965cfb8e.html
+add task url: [http://sc.cri.cn/20180815/45a95277-367c-3bb4-e6df-67433b894caf.html 服务自贸试验区 四川银行业出新招  a href]
+1549730788 nodownloadurldb.PushKey http://sc.cri.cn/20180815/45a95277-367c-3bb4-e6df-67433b894caf.html
+add task url: [http://sc.cri.cn/20181015/65b985fe-3c96-acec-3bbc-730ddf2c5ec8.html 自贸试验区首笔保税融资租赁业务诞生  a href]
+1549730788 nodownloadurldb.PushKey http://sc.cri.cn/20181015/65b985fe-3c96-acec-3bbc-730ddf2c5ec8.html
+add task url: [http://sc.cri.cn/20181119/ea692cb9-b26b-e502-72e4-e9d47c2613f1.html 截至9月自贸试验区新设外企522家  a href]
+1549730788 nodownloadurldb.PushKey http://sc.cri.cn/20181119/ea692cb9-b26b-e502-72e4-e9d47c2613f1.html
+add task url: [http://sc.cri.cn/20190107/fb4abf5d-8129-6be5-44f6-195d66929e8c.html 天府新区法院​受理首起案件  a href]
+1549730788 nodownloadurldb.PushKey http://sc.cri.cn/20190107/fb4abf5d-8129-6be5-44f6-195d66929e8c.html
+add task url: [http://sc.cri.cn/20190118/44e92df2-5b1c-aa96-d19c-234ab01f252a.html 41位大咖围坐 为自贸试验区发展把脉  a href]
+1549730788 nodownloadurldb.PushKey http://sc.cri.cn/20190118/44e92df2-5b1c-aa96-d19c-234ab01f252a.html
+add task url: [http://sc.cri.cn/20190123/eba6b60a-ecf2-57ac-c4b9-b1e66923bb72.html 第十八届世界警察和消防员运动会  a href]
+1549730788 nodownloadurldb.PushKey http://sc.cri.cn/20190123/eba6b60a-ecf2-57ac-c4b9-b1e66923bb72.html
+add task url: [http://sc.cri.cn/20190123/84b5fdba-554d-1177-157e-2d7c8d5290b4.html 省政府工作报告 2019年四川怎么干  a href]
+1549730788 nodownloadurldb.PushKey http://sc.cri.cn/20190123/84b5fdba-554d-1177-157e-2d7c8d5290b4.html
+add task url: [http://sc.cri.cn/20190125/a0bcf08d-3b82-3bb5-c1dd-f585aea5afc6.html “寿苏会”纪念苏东坡诞辰982周年  a href]
+1549730788 nodownloadurldb.PushKey http://sc.cri.cn/20190125/a0bcf08d-3b82-3bb5-c1dd-f585aea5afc6.html
+add task url: [http://sc.cri.cn/20190201/4e0910bd-26d1-a319-c377-3d5ab327b944.html 一图看懂2018年凉山州脱贫攻坚总结  a href]
+1549730788 nodownloadurldb.PushKey http://sc.cri.cn/20190201/4e0910bd-26d1-a319-c377-3d5ab327b944.html
+add task url: [http://sc.cri.cn/20190202/7065dd18-f076-aa98-d033-bcaaefc15876.html "大凉山苦荞茶"扶贫公益广告  a href]
+1549730788 nodownloadurldb.PushKey http://sc.cri.cn/20190202/7065dd18-f076-aa98-d033-bcaaefc15876.html
+add task url: [http://sc.cri.cn/20190123/84b5fdba-554d-1177-157e-2d7c8d5290b4.html 2019年四川怎么干  a href]
+1549730788 nodownloadurldb.PushKey http://sc.cri.cn/20190123/84b5fdba-554d-1177-157e-2d7c8d5290b4.html
+add task url: [http://sc.cri.cn/20190123/84b5fdba-554d-1177-157e-2d7c8d5290b4.html   a href]
+1549730788 nodownloadurldb.PushKey http://sc.cri.cn/20190123/84b5fdba-554d-1177-157e-2d7c8d5290b4.html
+add task url: [http://sc.cri.cn/20190109/f8423905-9d2c-6dd0-ed1e-f2d652272017.html 成都探索公园城市建设的“年度答卷”  a href]
+1549730788 nodownloadurldb.PushKey http://sc.cri.cn/20190109/f8423905-9d2c-6dd0-ed1e-f2d652272017.html
+add task url: [http://sc.cri.cn/20190118/324339c3-bf82-45ba-b937-c6caa7267a6b.html 龙头集聚带动 强省会时代的成都表达  a href]
+1549730788 nodownloadurldb.PushKey http://sc.cri.cn/20190118/324339c3-bf82-45ba-b937-c6caa7267a6b.html
+add task url: [http://sc.cri.cn/20190131/b90c6090-ebf9-985a-5dee-3f22c61af96a.html 蓉平：防流感更要防网络谣言  a href]
+1549730788 nodownloadurldb.PushKey http://sc.cri.cn/20190131/b90c6090-ebf9-985a-5dee-3f22c61af96a.html
+add task url: [http://sc.cri.cn/20190202/8065cbb2-a204-3f88-3690-f4b48460ca7e.html 成都如何以蓬勃态势走向世界城市  a href]
+1549730788 nodownloadurldb.PushKey http://sc.cri.cn/20190202/8065cbb2-a204-3f88-3690-f4b48460ca7e.html
+add task url: [http://sc.cri.cn/20181208/d30b213a-a954-e40c-c78c-876845b8a96e.html 从全城赏银杏看成都诗意生活  a href]
+1549730788 nodownloadurldb.PushKey http://sc.cri.cn/20181208/d30b213a-a954-e40c-c78c-876845b8a96e.html
+add task url: [http://sc.cri.cn/20181208/d30b213a-a954-e40c-c78c-876845b8a96e.html   a href]
+1549730788 nodownloadurldb.PushKey http://sc.cri.cn/20181208/d30b213a-a954-e40c-c78c-876845b8a96e.html
+add task url: [http://sc.cri.cn/20190131/8fd0ad95-f7b1-366a-b153-56e85f0d2293.html “成都消费”助力国际消费中心城市建设  a href]
+1549730788 nodownloadurldb.PushKey http://sc.cri.cn/20190131/8fd0ad95-f7b1-366a-b153-56e85f0d2293.html
+add task url: [http://sc.cri.cn/20190201/8160c5bf-e5c7-9f8e-716b-6b5f3378bc06.html “都江堰十大网络正能量”榜单出炉  a href]
+1549730788 nodownloadurldb.PushKey http://sc.cri.cn/20190201/8160c5bf-e5c7-9f8e-716b-6b5f3378bc06.html
+add task url: [http://sc.cri.cn/20190201/352c3ac1-28e1-5a03-aa07-bab22560b182.html 都江堰发布“十大新晋网红打卡地”榜单  a href]
+1549730788 nodownloadurldb.PushKey http://sc.cri.cn/20190201/352c3ac1-28e1-5a03-aa07-bab22560b182.html
+add task url: [http://sc.cri.cn/20190202/6cdc8198-c8d7-fcd9-df8c-98fd9b9b807a.html 成都彭州助产士跪姿托举胎头护母婴平安  a href]
+1549730788 nodownloadurldb.PushKey http://sc.cri.cn/20190202/6cdc8198-c8d7-fcd9-df8c-98fd9b9b807a.html
+add task url: [http://sc.cri.cn/20190202/bdfb7fea-beed-6f48-4387-2ce15748b14b.html 新金牛公园开园迎客 花团锦簇贺新春  a href]
+1549730788 nodownloadurldb.PushKey http://sc.cri.cn/20190202/bdfb7fea-beed-6f48-4387-2ce15748b14b.html
+add task url: [http://sc.cri.cn/20190202/bdfb7fea-beed-6f48-4387-2ce15748b14b.html   a href]
+1549730788 nodownloadurldb.PushKey http://sc.cri.cn/20190202/bdfb7fea-beed-6f48-4387-2ce15748b14b.html
+add task url: [http://sc.cri.cn/20190202/6cdc8198-c8d7-fcd9-df8c-98fd9b9b807a.html 成都彭州助产士跪姿托举胎头护母婴平安  a href]
+1549730788 nodownloadurldb.PushKey http://sc.cri.cn/20190202/6cdc8198-c8d7-fcd9-df8c-98fd9b9b807a.html
+add task url: [http://sc.cri.cn/20190202/9abceede-a248-a083-2017-8b655b9ec969.html 大熊猫文化全球推广大使给大家拜年啦！  a href]
+1549730788 nodownloadurldb.PushKey http://sc.cri.cn/20190202/9abceede-a248-a083-2017-8b655b9ec969.html
+add task url: [http://sc.cri.cn/20190202/7065dd18-f076-aa98-d033-bcaaefc15876.html "大凉山苦荞茶"扶贫公益广告  a href]
+1549730788 nodownloadurldb.PushKey http://sc.cri.cn/20190202/7065dd18-f076-aa98-d033-bcaaefc15876.html
+add task url: [http://sc.cri.cn/20190202/6a6a7224-357d-93b5-c9cc-c71d12f567e5.html 省委书记给大家拜年了！四川举行春节团拜会  a href]
+1549730788 nodownloadurldb.PushKey http://sc.cri.cn/20190202/6a6a7224-357d-93b5-c9cc-c71d12f567e5.html
+1549730788 nodownloadurldb.RmKey http://sc.cri.cn/20190203/88444745-9a63-e7dc-9203-6ce2eef06774.html
+close set isquit
+flush 1
+orderf.bhavenewwrite: false false news/sc.cri.cn_highlights/sitecurstate.orderfile
+BLockFlush end
+flush 2
+flush end
+close set isquit
+flush 1
+orderf.bhavenewwrite: true true news/sc.cri.cn_highlights/nodownloadurl.orderfile
+intempcnt: 0
+BLockFlush end
+flush 2
+flush end
+1549730789 nodownloadurldb.Close
+close set isquit
+flush 1
+orderf.bhavenewwrite: false false news/sc.cri.cn_highlights/failedurl.orderfile
+BLockFlush end
+flush 2
+flush end
+usedid, ind [] 0
+-1
+nsite: 0
+usedid, ind [0] 0
+0
+1549730850 NewOrderFile
+1549730850 nodownloadurldb.PreviousKey([]byte(������������������)
+taskurls: [http://sc.cri.cn/20190203/1756b803-2d06-8f16-ebe3-a7d277343b36.html]
+add task url: [http://sc.cri.cn/20180821/5214ce44-1b57-c896-f787-b11c24a5a790.html 四川对接“一带一路”的“点线面”  a href]
+1549730850 nodownloadurldb.PushKey http://sc.cri.cn/20180821/5214ce44-1b57-c896-f787-b11c24a5a790.html
+add task url: [http://sc.cri.cn/20180831/e452aacc-861f-24e0-9ea2-b8171463b890.html 打造台商参与“一带一路”建设先行区  a href]
+1549730850 nodownloadurldb.PushKey http://sc.cri.cn/20180831/e452aacc-861f-24e0-9ea2-b8171463b890.html
+add task url: [http://sc.cri.cn/20180831/e4134430-fd3d-fa5c-ba3d-8ed2165ff671.html 国际化成都青白江打造“内陆亚欧门户”  a href]
+1549730850 nodownloadurldb.PushKey http://sc.cri.cn/20180831/e4134430-fd3d-fa5c-ba3d-8ed2165ff671.html
+add task url: [http://sc.cri.cn/20180927/926bda3b-7652-9bc3-b935-a9dd965cfb8e.html “一带一路”绿色城市合作论坛遂宁举行  a href]
+1549730850 nodownloadurldb.PushKey http://sc.cri.cn/20180927/926bda3b-7652-9bc3-b935-a9dd965cfb8e.html
+add task url: [http://sc.cri.cn/20180815/45a95277-367c-3bb4-e6df-67433b894caf.html 服务自贸试验区 四川银行业出新招  a href]
+1549730850 nodownloadurldb.PushKey http://sc.cri.cn/20180815/45a95277-367c-3bb4-e6df-67433b894caf.html
+add task url: [http://sc.cri.cn/20181015/65b985fe-3c96-acec-3bbc-730ddf2c5ec8.html 自贸试验区首笔保税融资租赁业务诞生  a href]
+1549730850 nodownloadurldb.PushKey http://sc.cri.cn/20181015/65b985fe-3c96-acec-3bbc-730ddf2c5ec8.html
+add task url: [http://sc.cri.cn/20181119/ea692cb9-b26b-e502-72e4-e9d47c2613f1.html 截至9月自贸试验区新设外企522家  a href]
+1549730850 nodownloadurldb.PushKey http://sc.cri.cn/20181119/ea692cb9-b26b-e502-72e4-e9d47c2613f1.html
+add task url: [http://sc.cri.cn/20190107/fb4abf5d-8129-6be5-44f6-195d66929e8c.html 天府新区法院​受理首起案件  a href]
+1549730850 nodownloadurldb.PushKey http://sc.cri.cn/20190107/fb4abf5d-8129-6be5-44f6-195d66929e8c.html
+add task url: [http://sc.cri.cn/20190118/44e92df2-5b1c-aa96-d19c-234ab01f252a.html 41位大咖围坐 为自贸试验区发展把脉  a href]
+1549730850 nodownloadurldb.PushKey http://sc.cri.cn/20190118/44e92df2-5b1c-aa96-d19c-234ab01f252a.html
+add task url: [http://sc.cri.cn/20190123/eba6b60a-ecf2-57ac-c4b9-b1e66923bb72.html 第十八届世界警察和消防员运动会  a href]
+1549730850 nodownloadurldb.PushKey http://sc.cri.cn/20190123/eba6b60a-ecf2-57ac-c4b9-b1e66923bb72.html
+add task url: [http://sc.cri.cn/20190123/84b5fdba-554d-1177-157e-2d7c8d5290b4.html 省政府工作报告 2019年四川怎么干  a href]
+1549730850 nodownloadurldb.PushKey http://sc.cri.cn/20190123/84b5fdba-554d-1177-157e-2d7c8d5290b4.html
+add task url: [http://sc.cri.cn/20190125/a0bcf08d-3b82-3bb5-c1dd-f585aea5afc6.html “寿苏会”纪念苏东坡诞辰982周年  a href]
+1549730850 nodownloadurldb.PushKey http://sc.cri.cn/20190125/a0bcf08d-3b82-3bb5-c1dd-f585aea5afc6.html
+add task url: [http://sc.cri.cn/20190201/4e0910bd-26d1-a319-c377-3d5ab327b944.html 一图看懂2018年凉山州脱贫攻坚总结  a href]
+1549730850 nodownloadurldb.PushKey http://sc.cri.cn/20190201/4e0910bd-26d1-a319-c377-3d5ab327b944.html
+add task url: [http://sc.cri.cn/20190202/7065dd18-f076-aa98-d033-bcaaefc15876.html "大凉山苦荞茶"扶贫公益广告  a href]
+1549730850 nodownloadurldb.PushKey http://sc.cri.cn/20190202/7065dd18-f076-aa98-d033-bcaaefc15876.html
+add task url: [http://sc.cri.cn/20190123/84b5fdba-554d-1177-157e-2d7c8d5290b4.html 2019年四川怎么干  a href]
+1549730850 nodownloadurldb.PushKey http://sc.cri.cn/20190123/84b5fdba-554d-1177-157e-2d7c8d5290b4.html
+add task url: [http://sc.cri.cn/20190123/84b5fdba-554d-1177-157e-2d7c8d5290b4.html   a href]
+1549730850 nodownloadurldb.PushKey http://sc.cri.cn/20190123/84b5fdba-554d-1177-157e-2d7c8d5290b4.html
+add task url: [http://sc.cri.cn/20190109/f8423905-9d2c-6dd0-ed1e-f2d652272017.html 成都探索公园城市建设的“年度答卷”  a href]
+1549730850 nodownloadurldb.PushKey http://sc.cri.cn/20190109/f8423905-9d2c-6dd0-ed1e-f2d652272017.html
+add task url: [http://sc.cri.cn/20190118/324339c3-bf82-45ba-b937-c6caa7267a6b.html 龙头集聚带动 强省会时代的成都表达  a href]
+1549730850 nodownloadurldb.PushKey http://sc.cri.cn/20190118/324339c3-bf82-45ba-b937-c6caa7267a6b.html
+add task url: [http://sc.cri.cn/20190131/b90c6090-ebf9-985a-5dee-3f22c61af96a.html 蓉平：防流感更要防网络谣言  a href]
+1549730850 nodownloadurldb.PushKey http://sc.cri.cn/20190131/b90c6090-ebf9-985a-5dee-3f22c61af96a.html
+add task url: [http://sc.cri.cn/20190202/8065cbb2-a204-3f88-3690-f4b48460ca7e.html 成都如何以蓬勃态势走向世界城市  a href]
+1549730850 nodownloadurldb.PushKey http://sc.cri.cn/20190202/8065cbb2-a204-3f88-3690-f4b48460ca7e.html
+add task url: [http://sc.cri.cn/20181208/d30b213a-a954-e40c-c78c-876845b8a96e.html 从全城赏银杏看成都诗意生活  a href]
+1549730850 nodownloadurldb.PushKey http://sc.cri.cn/20181208/d30b213a-a954-e40c-c78c-876845b8a96e.html
+add task url: [http://sc.cri.cn/20181208/d30b213a-a954-e40c-c78c-876845b8a96e.html   a href]
+1549730850 nodownloadurldb.PushKey http://sc.cri.cn/20181208/d30b213a-a954-e40c-c78c-876845b8a96e.html
+add task url: [http://sc.cri.cn/20190131/8fd0ad95-f7b1-366a-b153-56e85f0d2293.html “成都消费”助力国际消费中心城市建设  a href]
+1549730850 nodownloadurldb.PushKey http://sc.cri.cn/20190131/8fd0ad95-f7b1-366a-b153-56e85f0d2293.html
+add task url: [http://sc.cri.cn/20190201/8160c5bf-e5c7-9f8e-716b-6b5f3378bc06.html “都江堰十大网络正能量”榜单出炉  a href]
+1549730850 nodownloadurldb.PushKey http://sc.cri.cn/20190201/8160c5bf-e5c7-9f8e-716b-6b5f3378bc06.html
+add task url: [http://sc.cri.cn/20190201/352c3ac1-28e1-5a03-aa07-bab22560b182.html 都江堰发布“十大新晋网红打卡地”榜单  a href]
+1549730850 nodownloadurldb.PushKey http://sc.cri.cn/20190201/352c3ac1-28e1-5a03-aa07-bab22560b182.html
+add task url: [http://sc.cri.cn/20190202/6cdc8198-c8d7-fcd9-df8c-98fd9b9b807a.html 成都彭州助产士跪姿托举胎头护母婴平安  a href]
+1549730850 nodownloadurldb.PushKey http://sc.cri.cn/20190202/6cdc8198-c8d7-fcd9-df8c-98fd9b9b807a.html
+add task url: [http://sc.cri.cn/20190202/bdfb7fea-beed-6f48-4387-2ce15748b14b.html 新金牛公园开园迎客 花团锦簇贺新春  a href]
+1549730850 nodownloadurldb.PushKey http://sc.cri.cn/20190202/bdfb7fea-beed-6f48-4387-2ce15748b14b.html
+add task url: [http://sc.cri.cn/20190202/bdfb7fea-beed-6f48-4387-2ce15748b14b.html   a href]
+1549730850 nodownloadurldb.PushKey http://sc.cri.cn/20190202/bdfb7fea-beed-6f48-4387-2ce15748b14b.html
+add task url: [http://sc.cri.cn/20190202/9abceede-a248-a083-2017-8b655b9ec969.html 大熊猫文化全球推广大使给大家拜年啦！  a href]
+1549730850 nodownloadurldb.PushKey http://sc.cri.cn/20190202/9abceede-a248-a083-2017-8b655b9ec969.html
+add task url: [http://sc.cri.cn/20190202/7065dd18-f076-aa98-d033-bcaaefc15876.html "大凉山苦荞茶"扶贫公益广告  a href]
+1549730850 nodownloadurldb.PushKey http://sc.cri.cn/20190202/7065dd18-f076-aa98-d033-bcaaefc15876.html
+add task url: [http://sc.cri.cn/20190202/6a6a7224-357d-93b5-c9cc-c71d12f567e5.html 省委书记给大家拜年了！四川举行春节团拜会  a href]
+1549730850 nodownloadurldb.PushKey http://sc.cri.cn/20190202/6a6a7224-357d-93b5-c9cc-c71d12f567e5.html
+1549730850 nodownloadurldb.RmKey http://sc.cri.cn/20190203/1756b803-2d06-8f16-ebe3-a7d277343b36.html
+close set isquit
+flush 1
+orderf.bhavenewwrite: false false news/sc.cri.cn_highlights/sitecurstate.orderfile
+BLockFlush end
+flush 2
+flush end
+close set isquit
+flush 1
+orderf.bhavenewwrite: true true news/sc.cri.cn_highlights/nodownloadurl.orderfile
+intempcnt: 0
+BLockFlush end
+flush 2
+flush end
+1549730851 nodownloadurldb.Close
+close set isquit
+flush 1
+orderf.bhavenewwrite: false false news/sc.cri.cn_highlights/failedurl.orderfile
+BLockFlush end
+flush 2
+flush end
+usedid, ind [] 0
+-1
+nsite: 0
+usedid, ind [0] 0
+0
+1549730913 NewOrderFile
+boatcharoffset 1 boatcharlen 1 boat [4 0 104 0 0 0 2] subboat [8 47] 4294967294 3
+
+

@@ -1,0 +1,24 @@
+
+M:\GoProjects\src\orderfilev2buf>cd /d M:\GoProjects\src\orderfilev2buf\ 
+
+M:\GoProjects\src\orderfilev2buf>orderfilev2buf.test.exe
+PASS
+
+M:\GoProjects\src\orderfilev2buf>orderfilev2buf.test.exe
+PASS
+
+M:\GoProjects\src\orderfilev2buf>orderfilev2buf.test.exe
+PASS
+
+M:\GoProjects\src\orderfilev2buf>orderfilev2buf.test.exe
+PASS
+
+M:\GoProjects\src\orderfilev2buf>orderfilev2buf.test.exe
+
+M:\GoProjects\src\orderfilev2buf>orderfilev2buf.test.exe
+
+M:\GoProjects\src\orderfilev2buf>orderfilev2buf.test.exe
+
+M:\GoProjects\src\orderfilev2buf>orderfilev2buf.test.exe
+
+M:\GoProjects\src\orderfilev2buf>orderfilev2buf.test.exe
