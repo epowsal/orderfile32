@@ -32,7 +32,7 @@ func Benchmark1MillionWrite(t *testing.B) {
 	ts := time.Now().UnixNano()
 	st := ts
 	for i := 0; i < 1000000; i++ {
-		keybt := orderfiletool.RandPrintChar(24, 60)
+		keybt := orderfiletool.RandPrintChar(13, 13)
 		db.RealPush(keybt)
 		if i%100000 == 0 {
 			ts2 := time.Now().UnixNano()
@@ -43,6 +43,7 @@ func Benchmark1MillionWrite(t *testing.B) {
 	fmt.Println("Push finish time:", (time.Now().UnixNano()-st)/int64(time.Millisecond), "Millisecond")
 	db.Close()
 	fmt.Println("Close time:", (time.Now().UnixNano()-st)/int64(time.Millisecond), "Millisecond")
+	panic("err")
 }
 
 func Benchmark1MillionRead(t *testing.B) {
