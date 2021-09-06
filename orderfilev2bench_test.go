@@ -43,7 +43,6 @@ func Benchmark1MillionWrite(t *testing.B) {
 	fmt.Println("Push finish time:", (time.Now().UnixNano()-st)/int64(time.Millisecond), "Millisecond")
 	db.Close()
 	fmt.Println("Close time:", (time.Now().UnixNano()-st)/int64(time.Millisecond), "Millisecond")
-	panic("err")
 }
 
 func Benchmark1MillionRead(t *testing.B) {
@@ -176,38 +175,12 @@ func Benchmark200ThousandReadBolt(t *testing.B) {
 	fmt.Println("Close time:", (time.Now().UnixNano()-ts4)/int64(time.Millisecond), "Millisecond")
 }
 
-func Benchmark1MillionWriteBadger(t *testing.B) {
+func Benchmark1MillionBadgerWrite(t *testing.B) {
 	opts := badger.DefaultOptions("testbenchdb/badgerdb")
 	db, err := badger.Open(opts)
 	if err != nil {
 		panic("error")
 	}
-
-	// txn := db.NewTransaction(true)
-	// defer txn.Discard()
-	// ts := time.Now().UnixNano()
-	// st := ts
-	// ff, _ := os.OpenFile("testbenchdb/badgerkey", os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0666)
-	// for i := 0; i < 1000000; i++ {
-	// 	keybt := orderfiletool.RandPrintChar(13, 13)
-
-	// 	if err := txn.Set(keybt[:8], keybt[8:]); err == badger.ErrTxnTooBig {
-	// 		_ = txn.Commit()
-	// 		txn = db.NewTransaction(true)
-	// 		_ = txn.Set(keybt[:8], keybt[8:])
-	// 	}
-
-	// 	ff.Write(keybt)
-	// 	ff.Write([]byte{'\n'})
-	// 	if i%100000 == 0 {
-	// 		ts2 := time.Now().UnixNano()
-	// 		fmt.Println(i, (ts2-ts)/int64(time.Millisecond), "Millisecond")
-	// 		ts = ts2
-	// 	}
-	// }
-	// ff.Close()
-	// txn.Commit()
-
 	ts := time.Now().UnixNano()
 	st := ts
 	ff, _ := os.OpenFile("testbenchdb/badgerkey", os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0666)
@@ -237,7 +210,7 @@ func Benchmark1MillionWriteBadger(t *testing.B) {
 	fmt.Println("Close time:", (time.Now().UnixNano()-st)/int64(time.Millisecond), "Millisecond")
 }
 
-func Benchmark1MillionReadBadger(t *testing.B) {
+func Benchmark1MillionBadgerRead(t *testing.B) {
 	ts := time.Now().UnixNano()
 	opts := badger.DefaultOptions("testbenchdb/badgerdb")
 	db, err := badger.Open(opts)
