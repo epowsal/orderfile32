@@ -45,15 +45,15 @@ orderfilepeta write 1 million speed test screenshot:
 ![orderfilepeta1millionwrite_ok](https://user-images.githubusercontent.com/89308109/132252496-f2679092-d3b8-4797-88fc-93841304fae6.png)
 
 
-orderfile32 write 1 million item use 7.1 second.
+orderfile32 write 1 million items use 7.1 second.
 
-badger write 1 million item use 26.7 second.
+badger write 1 million items use 26.7 second.
 
-bolt write 0.2 million item use 90 second.
+bolt write 0.2 million items use 90 second.
 
-orderfilepeta write 1 million item use 15.9 second.
+orderfilepeta write 1 million items use 15.9 second.
 
-so orderfile32 if the fastest writing database.the large database orderfilepeta is fast than badger.
+so orderfile32 if the fastest writing database.the large database orderfilepeta is faster than badger.
 
 
 
