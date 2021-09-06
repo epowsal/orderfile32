@@ -84,15 +84,13 @@ badger read 1 million items use 6.5 second.
 
 bolt read 0.2 million items use 0.5 second.
 
-orderfilepeta read 1 million items first read.
+orderfilepeta read 1 million items. first read use 6.5 second. second read use 6.1 second.
 
-use 6.5 second. second read use 6.1 second.
-
-so if bolt read 1 million item will use 2.5 second.
+so if bolt read 1 million items will use 2.5 second.
 
 so bolt is the fastest reading database.
 
-compare orderfile32 with badger.orderfile32 is almost two times faster than badger.
+compare orderfile32 with badger. orderfile32 is almost two time faster than badger.
 
 compare orderfilepeta with badger. they almost equal.
 
