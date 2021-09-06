@@ -130,7 +130,7 @@ orderfile32 and orderfilepeta have smallest database file size.
 paypal:
 
 
-[![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=6P5BWRBCKHHJN)
+[![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=PAGZ8VVGG67XY)
 
 
 # 捐赠以表示感谢与支持
