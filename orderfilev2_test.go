@@ -154,6 +154,55 @@ func TestFillKeyEndByte(t *testing.T) {
 	OrderFileClear(orderpath)
 }
 
+func genlongkey() []byte {
+	wordbt := make([]byte, 0)
+	genlen := 1<<17 + rand.Intn(512)
+	for i := 0; i < genlen; i++ {
+		wordbt = append(wordbt, byte(0x41+rand.Intn(26)))
+	}
+	return wordbt
+}
+
+func TestLongKey(t *testing.T) {
+	orderpath := "testdb/testlongkey"
+	OrderFileClear(orderpath)
+	seed := time.Now().Unix()
+	fmt.Println("seed:", seed)
+	rand.Seed(seed)
+
+	testof, _ := OpenOrderFile(orderpath, 0, 0, []byte{0})
+
+	dd := make(map[string]int, 0)
+	for i := 0; i < 100; i++ {
+		lkey := genlongkey()
+		testof.RealPush(lkey)
+		dd[string(lkey)] = 0
+	}
+
+	for key, _ := range dd {
+		_, bgetlkey := testof.RealFill([]byte(key))
+		if bgetlkey == false {
+			panic("error")
+		}
+	}
+
+	for key, _ := range dd {
+		brm := testof.RealRm([]byte(key))
+		if brm == false {
+			panic("error")
+		}
+	}
+
+	for key, _ := range dd {
+		_, bgetlkey := testof.RealFill([]byte(key))
+		if bgetlkey == true {
+			panic("error")
+		}
+	}
+
+	testof.Close()
+}
+
 func TestRmKeyFillKey(t *testing.T) {
 	orderpath := "testdb/TestRmKeyFillKey"
 	OrderFileClear(orderpath)
@@ -371,7 +420,7 @@ func TestCrash2(t *testing.T) {
 }
 
 func TestBinError5(t *testing.T) {
-	allowmultiopenfortest = true
+	//allowmultiopenfortest = true
 	go func() {
 		//http.ListenAndServe("0.0.0.0:80", nil)
 	}()

@@ -213,7 +213,7 @@ func (orderf *OrderFile) open(path string, compresstype int, fixkeylength int, f
 	rand.Seed(time.Now().UnixNano())
 	orderf.releasespacels = make(map[uint32][]byte, 0)
 	orderf.spacelen_pos = make(map[uint32][]byte, 0)
-	orderf.extranbuf = make([]byte, 1<<19+10240)
+	orderf.extranbuf = make([]byte, 5*(1<<17))
 	var pathfile *os.File
 	var err, fexistserr error
 	fi, fexistserr := os.Stat(path)
@@ -1059,7 +1059,7 @@ func BytesToMapU32Bytes(mdatastr []byte) (mdata map[uint32][]byte) {
 }
 
 func CompressAndSave(orderf *OrderFile, segindinfo chan uint32, newsavedataf *os.File, oldboatfbufcurlen, oldboatffilepos, oldboatfbufsize *uint64, oldboatfbuf []byte) {
-	zbuf := make([]byte, 1<<19+10240)
+	zbuf := make([]byte, 1<<17)
 	for true {
 		segindi := <-segindinfo
 		if segindi == ^uint32(0) {
@@ -2039,6 +2039,7 @@ func (orderf *OrderFile) Close() bool {
 	forbidReopenMap.Delete(orderf.pathlockid)
 	orderf.pathlockid = ""
 	filelock.Unlock(orderf.flockid)
+	orderf.flockid = 0
 
 	//fmt.Println(orderf.path, "close 6")
 	// t1 := time.Now().Unix()
@@ -2435,7 +2436,7 @@ func (orderf *OrderFile) writeOldBoatNoZip(boatoffset, oldboatlen uint64, boat [
 		ucelldata = append(ucelldata[:boatoffset-orderstart], boat...)
 		//fmt.Println("ucelldata5", ucelldata)
 		orderlen = orderlen + (uint64(len(boat)) - oldboatlen)
-		if orderlen > 0 && orderlen < (1<<19) {
+		if orderlen > 0 && orderlen < (1<<17) {
 			setBlockPos(orderf.shorttable[24+blockind*11:24+blockind*11+2*11], orderstart, orderlen, datapos, dataposlen, 1)
 			orderf.cachemap.Store(uint32(blockind), orderf.setValTouch(ucelldata, oldcntval, true))
 			orderf.lastblockorderend = orderstart + orderlen
@@ -3493,7 +3494,30 @@ func (orderf *OrderFile) RealPush(word []byte) bool {
 		return false
 	}
 
-	if len(word) >= (1 << 19) {
+	if len(word) >= (1<<17)-256 {
+		if len(word) < 5*(1<<17) {
+			var cslen int
+			if orderf.compresstype == 0 {
+				cslen = len(ZipEncode(nil, word, 1))
+			} else if orderf.compresstype == 1 {
+				cslen = len(SnappyEncode(nil, word))
+			} else if orderf.compresstype == 2 {
+				cslen = len(Lz4Encode(nil, word))
+			} else if orderf.compresstype == 3 {
+				cslen = len(XzEncode(nil, word))
+			} else if orderf.compresstype == 4 {
+				cslen = len(FlateEncode(nil, word, 1))
+			}
+			if cslen >= (1 << 17) {
+				return false
+			}
+		} else {
+			return false
+		}
+	}
+
+	if orderf.lastblockendpos > ((1<<36)-32*1024*1024) || orderf.lastblockorderend > ((1<<35)-64*1024*1024) {
+		orderfiletool.WriteFile(orderf.path+".reachedmax!", []byte{})
 		return false
 	}
 
@@ -4809,14 +4833,33 @@ func (orderf *OrderFile) RealRmPush(key, value []byte) bool {
 		return false
 	}
 
-	if len(key)+len(value) >= (1 << 19) {
-		return false
+	if len(key)+len(value) >= (1<<17)-256 {
+		if len(key)+len(value) < 5*(1<<17) {
+			var cslen int
+			if orderf.compresstype == 0 {
+				cslen = len(ZipEncode(nil, append(key, value...), 1))
+			} else if orderf.compresstype == 1 {
+				cslen = len(SnappyEncode(nil, append(key, value...)))
+			} else if orderf.compresstype == 2 {
+				cslen = len(Lz4Encode(nil, append(key, value...)))
+			} else if orderf.compresstype == 3 {
+				cslen = len(XzEncode(nil, append(key, value...)))
+			} else if orderf.compresstype == 4 {
+				cslen = len(FlateEncode(nil, append(key, value...), 1))
+			}
+			if cslen >= (1 << 17) {
+				return false
+			}
+		} else {
+			return false
+		}
 	}
 
-	if orderf.lastblockendpos > ((1<<39)-32*1024*1024) || orderf.lastblockorderend > ((1<<38)-64*1024*1024) {
+	if orderf.lastblockendpos > ((1<<36)-32*1024*1024) || orderf.lastblockorderend > ((1<<35)-64*1024*1024) {
 		orderfiletool.WriteFile(orderf.path+".reachedmax!", []byte{})
 		return false
 	}
+
 	orderf.ordermu.Lock()
 	//orderf.ErrorRecord("RP", key, value)
 	rootboatoffset := binary.BigEndian.Uint64(append([]byte{0, 0}, orderf.shorttable[0:6]...))
@@ -5030,7 +5073,7 @@ func OrderFileClear(path string) {
 	os.Remove(path + ".headsaveok")
 	os.Remove(path + ".opt")
 	os.Remove(path + "_err.log")
-	pathls := []string{path + ".rmpush", path + ".rmpushinsave", path, path + ".head", path + ".head.backup", path + ".headsave", path + ".bfree", path + ".bfree.backup", path + ".bfreesave", path + ".ffree", path + ".ffree.backup", path + ".ffreesave", path + ".rmpushinmem", path + ".newsavedata", path + ".beopen", path + ".rmpushtemp", path + ".rmpushtempok", path + ".headsaveok"}
+	pathls := []string{path + ".rmpush", path + ".rmpushinsave", path, path + ".head", path + ".head.backup", path + ".headsave", path + ".bfree", path + ".bfree.backup", path + ".bfreesave", path + ".ffree", path + ".ffree.backup", path + ".ffreesave", path + ".rmpushinmem", path + ".newsavedata", path + ".beopen", path + ".rmpushtemp", path + ".rmpushtempok", path + ".headsaveok", path + ".opt"}
 	for _, pa := range pathls {
 		_, rmpushe := os.Stat(pa)
 		if rmpushe == nil {

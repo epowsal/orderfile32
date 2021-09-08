@@ -176,10 +176,14 @@ func Benchmark200ThousandReadBolt(t *testing.B) {
 }
 
 func Benchmark1MillionBadgerWrite(t *testing.B) {
+	rmer := os.RemoveAll("testbenchdb/badgerdb")
+	if rmer != nil {
+		panic(rmer)
+	}
 	opts := badger.DefaultOptions("testbenchdb/badgerdb")
 	db, err := badger.Open(opts)
 	if err != nil {
-		panic("error")
+		panic(err)
 	}
 	ts := time.Now().UnixNano()
 	st := ts
