@@ -5,6 +5,26 @@ The orderfile32 is standard alone fast key value database. It have two version. 
 
 this projec I devloped many years.  now I release it for public. if you like it. you can use it. you will found it is very good.
 
+# feature
+
+1. hight performance
+2. log database.
+3. support application crash recover.
+4. small database file.
+5. embedable
+6. support rand get from database.
+7. support max match for word split.
+8. support find previous/next key by current key.
+9. support zip snappy xz lz4 flate compress type.
+10. support database compress after used long time.
+11. support multi core.
+12. support multi thread.
+13. support automatic recover.
+14. support fix key length.
+15. support unique key defined by end bytes.
+16. support normal application and large data application.
+17. support fill function using key suffix.
+
 # install
 
 got get github.com/epowsal/orderfile32
