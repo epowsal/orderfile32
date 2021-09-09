@@ -2804,7 +2804,7 @@ func (orderf *OrderFile) KeyExists(key []byte) bool {
 		return false
 	}
 
-	if len(key) != orderf.fixkeylen {
+	if orderf.fixkeylen > 0 && len(key) != orderf.fixkeylen {
 		return false
 	}
 
@@ -2827,7 +2827,7 @@ func (orderf *OrderFile) RealKeyExists(key []byte) bool {
 		}
 	}()
 
-	if len(key) != orderf.fixkeylen {
+	if orderf.fixkeylen > 0 && len(key) != orderf.fixkeylen {
 		return false
 	}
 
@@ -4632,6 +4632,11 @@ func (orderf *OrderFile) nextPreviousKey(boat, sentence []byte, sentencecuri int
 	}
 
 	if foundind == -1 && getBoatChildLen(boat) > 0 && sentencecuri+int(boatcharlen-samecnt) <= len(sentence) && bytes.Compare(boat[boatcharoffset+samecnt:boatcharoffset+boatcharlen], sentence[sentencecuri:sentencecuri+int(boatcharlen-samecnt)]) <= 0 {
+		sentence = sentence[:sentencecuri]
+		sentence = append(sentence, boat[boatcharoffset+samecnt:boatcharoffset+boatcharlen]...)
+		sentencecuri += int(boatcharlen - samecnt)
+		samecnt = boatcharlen
+
 		foundind = int(getBoatChildLen(boat))/6 - 1
 	}
 
