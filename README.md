@@ -1,9 +1,12 @@
 # orderfile32
+
+![iconsmall](https://user-images.githubusercontent.com/89308109/133926499-6cb97519-1e4f-454e-98fa-3e9a941dec77.png)
+
 pure golang key database support key have value
 
 The orderfile32 is standard alone fast key value database. It have two version. one is this. two is orderfilepeta. this version is open source version. this version support database size is 32gb. max key add value length is 128kb. orderfilepeta database max size support 16peta byte. max key add value length 32mb. orderfile peta for commerce use only. if you want orderfilepeta you can contact me by email iwlb@outlook.com. normal user orderfile32 is enough for using. 32gb is compressed size. this size can contain about 2billion normal item data.
 
-this projec I devloped many years.  now I release it for public. if you like it. you can use it. you will found it is very good.
+this project I devloped many years.  now I release it for public. if you like it. you can use it. you will found it is very good.
 
 # feature
 
@@ -24,6 +27,7 @@ this projec I devloped many years.  now I release it for public. if you like it.
 15. support unique key defined by end bytes.
 16. support normal application and large data application.
 17. support fill function using key suffix.
+
 
 # install
 
@@ -65,13 +69,13 @@ orderfilepeta write 1 million speed test screenshot:
 ![orderfilepeta1millionwrite_ok](https://user-images.githubusercontent.com/89308109/132252496-f2679092-d3b8-4797-88fc-93841304fae6.png)
 
 
-orderfile32 write 1 million items use 7.1 second.
+orderfile32 write 1 million items use 7.1 seconds.
 
-badger write 1 million items use 26.7 second.
+badger write 1 million items use 26.7 seconds.
 
-bolt write 0.2 million items use 90 second.
+bolt write 0.2 million items use 90 seconds.
 
-orderfilepeta write 1 million items use 15.9 second.
+orderfilepeta write 1 million items use 15.9 seconds.
 
 so orderfile32 if the fastest writing database.the large database orderfilepeta is faster than badger.
 
@@ -96,17 +100,17 @@ ordefilepeta read 1 million times speed test screenshot:
 ![orderfilepeta1millionread_ok](https://user-images.githubusercontent.com/89308109/132252840-3da20e92-c003-4d83-a868-c9b2176e4a26.png)
 
 
-after test get:
+after test got:
 
-orderfile32 read 1 million items first time read use 3.9 second. second time read use 3.0 second.
+orderfile32 read 1 million items first time read use 3.9 second. second time read use 3.0 seconds.
 
-badger read 1 million items use 6.5 second.
+badger read 1 million items use 6.5 seconds.
 
-bolt read 0.2 million items use 0.5 second.
+bolt read 0.2 million items use 0.5 seconds.
 
-orderfilepeta read 1 million items. first read use 6.5 second. second read use 6.1 second.
+orderfilepeta read 1 million items. first read use 6.5 second. second read use 6.1 seconds.
 
-so if bolt read 1 million items will use 2.5 second.
+so if bolt read 1 million items will use 2.5 seconds.
 
 so bolt is the fastest reading database.
 
@@ -142,7 +146,7 @@ bolt 5 times size is 80mb.
 
 so bolt have largest database file size.
 
-orderfile32 and orderfilepeta have smallest database file size.
+orderfile32 and orderfilepeta have the smallest database file size.
 
 
 # thanks and support me by donate
@@ -158,8 +162,6 @@ paypal:
 支付宝：
 
 ![接受捐赠200pixel](https://user-images.githubusercontent.com/89308109/132255156-1926b435-d628-40a8-89a2-1682f2e69a69.png)
-
-
 
 
 
