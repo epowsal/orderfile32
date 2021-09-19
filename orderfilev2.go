@@ -366,7 +366,7 @@ func (orderf *OrderFile) open(path string, compresstype int, fixkeylength int, f
 	orderf.prepareflush = false
 	orderf.prepareflushendch = make(chan uint8, 0)
 	orderf.autoflush = true
-	orderf.enablermpushlog = false
+	orderf.enablermpushlog = true
 	orderf.lastcompleteorderset = make([]uint32, 0, 1024)
 	orderf.markrmpushfilemaxsize = 5 * 1024 * 1024 * 1024
 
@@ -1262,7 +1262,8 @@ func DeletePrepareFlush(orderfilepath string) {
 
 func BlockFlush(orderf *OrderFile) {
 	//time.Sleep(100 * time.Millisecond)
-	pushmapempty := false
+	//pushmapempty := false
+	pushmapempty := true
 	for true {
 		//save memory item
 		orderf.markmu.Lock()
@@ -3528,7 +3529,6 @@ func (orderf *OrderFile) nextPushKey(boatoffset uint64, word []byte, wordcuri in
 	return boatoffsetid, false
 }
 
-//speed slower than RealPush
 func (orderf *OrderFile) Push(fullkey []byte) bool {
 	if !orderf.isopen {
 		return false
@@ -3561,7 +3561,6 @@ func (orderf *OrderFile) Push(fullkey []byte) bool {
 	return true
 }
 
-//speed slower than RealPush
 func (orderf *OrderFile) PushKey(key, val []byte) bool {
 	if !orderf.isopen {
 		return false
@@ -3571,7 +3570,6 @@ func (orderf *OrderFile) PushKey(key, val []byte) bool {
 	}
 
 	orderf.markmu.Lock()
-	//slower than real. so temp remove
 	//orderf.markrmmap.Delete(string(key))
 	//orderf.markrmpushmap.Store(string(key), val)
 
