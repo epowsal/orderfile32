@@ -6,7 +6,6 @@ import (
 	"encoding/binary"
 	"fmt"
 	"io/ioutil"
-	"math"
 	"math/rand"
 	"os"
 	"runtime"
@@ -19,100 +18,6 @@ import (
 
 	"github.com/epowsal/orderfile32/orderfiletool"
 )
-
-func wordindcmp(wordind1, wordind2 []byte) bool {
-	if len(wordind1) != len(wordind2) {
-		return false
-	}
-	for i := 0; i < len(wordind1); i++ {
-		if wordind1[i] != wordind2[i] {
-			return false
-		}
-	}
-	return true
-}
-
-func genword() []byte {
-	wordbt := make([]byte, 0)
-	sublen := rand.Intn(18)
-	for i := 0; i < 3+sublen; i++ {
-		wordbt = append(wordbt, byte(0x41+rand.Intn(26)))
-	}
-	return wordbt
-}
-
-func Float32ToByte(float float32) []byte {
-	bits := math.Float32bits(float)
-	bytes := make([]byte, 4)
-	binary.BigEndian.PutUint32(bytes, bits)
-	return bytes
-}
-
-func ByteToFloat32(bytes []byte) float32 {
-	bits := binary.BigEndian.Uint32(bytes)
-	return math.Float32frombits(bits)
-}
-
-func genfloat32bt() []byte {
-	for true {
-		f32 := rand.Float32()
-		if f32 > 0 {
-			return []byte("price_" + string(Float32ToByte(f32)))
-		}
-	}
-	return []byte{}
-}
-
-func genword2() []byte {
-	wordbt := make([]byte, 3)
-	wordbt[0] = 'b'
-	wordbt[1] = 'b'
-	wordbt[2] = 'c'
-	for i := 0; i < 3+rand.Intn(5); i++ {
-		wordbt = append(wordbt, byte(0x41+rand.Intn(26)))
-	}
-	return wordbt
-}
-
-func genwordlarge() []byte {
-	wordbt := make([]byte, 0)
-	genlen := 1024 + rand.Intn(512)
-	for i := 0; i < genlen; i++ {
-		wordbt = append(wordbt, byte(0x41+rand.Intn(26)))
-	}
-	return wordbt
-}
-
-func genupperstr() string {
-	wordbt := make([]byte, 0)
-	genlen := 2 + rand.Intn(5)
-	for i := 0; i < genlen; i++ {
-		wordbt = append(wordbt, byte(0x41+rand.Intn(26)))
-	}
-	return string(wordbt)
-}
-
-func genlowerstr() string {
-	wordbt := make([]byte, 0)
-	genlen := 2 + rand.Intn(5)
-	for i := 0; i < genlen; i++ {
-		wordbt = append(wordbt, byte(0x61+rand.Intn(26)))
-	}
-	return string(wordbt)
-}
-
-func LogInit() {
-	fmt.Println(binary.BigEndian.Uint32(make([]byte, 4)))
-	ioutil.ReadFile("sdfdsf")
-	os.Stat("jdslkfj")
-	bufio.NewReader(strings.NewReader("dslfk"))
-	time.Now().Unix()
-	strconv.FormatInt(344, 10)
-	fmt.Println(runtime.Caller(0))
-	sort.Strings([]string{})
-	fmt.Println(bytes.Index([]byte(""), []byte{}))
-	fmt.Println(&sync.Map{})
-}
 
 func TestFillKeyEndByte(t *testing.T) {
 	orderpath := "testdb/TestFillKeyEndByte"
@@ -1880,10 +1785,10 @@ func TestOrderFileNextKeytestsample6(t *testing.T) {
 	}
 	testof2.WaitBufMapEmpty()
 	testof2.Flush()
-	testof2.markrmpushmap.Range(func(key, val interface{}) bool {
-		fmt.Println(key, val)
-		return true
-	})
+	// testof2.markrmpushmap.Range(func(key, val interface{}) bool {
+	// 	fmt.Println(key, val)
+	// 	return true
+	// })
 	sort.Strings(allword3)
 	fmt.Println(allword3)
 	for i := 0; i < len(allword3); i++ {
@@ -1891,10 +1796,10 @@ func TestOrderFileNextKeytestsample6(t *testing.T) {
 		nextkey, bfound := testof2.NextKey(append([]byte(allword3[i]), endbt...))
 		if i < len(allword3)-1 {
 			if bfound == false || allword3[i+1]+string(endbt) != string(nextkey) {
-				testof2.markrmpushmap.Range(func(key, val interface{}) bool {
-					fmt.Println(key, val)
-					return true
-				})
+				// testof2.markrmpushmap.Range(func(key, val interface{}) bool {
+				// 	fmt.Println(key, val)
+				// 	return true
+				// })
 				fmt.Println("i", i, "currentkey:", allword3[i], "found nextkey:", string(nextkey), "right nextkey:", allword3[i+1])
 				fmt.Println("found nextkey byte:", "found nextkey:", nextkey)
 				fmt.Println("right nextkey byte:", []byte(allword3[i+1]))
@@ -1983,10 +1888,10 @@ func TestOrderFilePreviousKeytestsample4(t *testing.T) {
 	}
 	testof2.WaitBufMapEmpty()
 	testof2.Flush()
-	testof2.markrmpushmap.Range(func(key, val interface{}) bool {
-		fmt.Println(key, val)
-		return true
-	})
+	// testof2.markrmpushmap.Range(func(key, val interface{}) bool {
+	// 	fmt.Println(key, val)
+	// 	return true
+	// })
 	sort.Strings(allword3)
 	if len(allword3) < 100 {
 		fmt.Println("allword3:", allword3)
@@ -1996,10 +1901,10 @@ func TestOrderFilePreviousKeytestsample4(t *testing.T) {
 		nextkey, bfound := testof2.PreviousKey([]byte(allword3[i]))
 		if i > 0 {
 			if bfound == false || allword3[i-1] != string(nextkey) {
-				testof2.markrmpushmap.Range(func(key, val interface{}) bool {
-					fmt.Println(key, val)
-					return true
-				})
+				// testof2.markrmpushmap.Range(func(key, val interface{}) bool {
+				// 	fmt.Println(key, val)
+				// 	return true
+				// })
 				fmt.Println("i", i, "currentkey", allword3[i], "found previouskey:", string(nextkey), "right previouskey:", allword3[i-1])
 				panic("previous key error!")
 			}
@@ -2289,7 +2194,10 @@ func TestOrderFile14(t *testing.T) {
 func TestOrderFile10(t *testing.T) {
 	orderpath := "testdb/TestOrderFile10"
 	OrderFileClear(orderpath)
-	rand.Seed(time.Now().Unix())
+	seed := time.Now().Unix()
+	//seed = 1632031943
+	fmt.Println("seed:", seed)
+	rand.Seed(seed)
 	endbt := []byte{'\t'}
 	testof, _ := OpenOrderFile(orderpath, 0, 0, endbt)
 	allword2 := make(map[string][]byte, 0)
@@ -2307,7 +2215,10 @@ func TestOrderFile10(t *testing.T) {
 		for word3, word2 := range allword2 {
 			fullword, bfill := testof.FillKey([]byte(word3))
 			if bfill == false || string(fullword) != word3+"\t"+string(word2) {
-				fmt.Println("error", word3+"\t"+string(word2), string(fullword))
+				fmt.Println("error", len(allword2), bfill, "right:", word3+"\t"+string(word2), "filled:", string(fullword))
+				time.Sleep(5 * time.Second)
+				fullword, bfill := testof.FillKey([]byte(word3))
+				fmt.Println(bfill, string(fullword))
 				panic("error")
 			}
 		}

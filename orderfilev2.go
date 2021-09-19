@@ -70,28 +70,28 @@ type OrderFile struct {
 	totalcachecount          int64
 	toatalreusecount         int64
 	maxreusecount            int64
-	markrmmap                sync.Map
-	markpushmap              sync.Map
-	markrmpushmap            sync.Map
-	markmu                   *sync.RWMutex
-	markrmpushfile           *os.File
-	prepareflush             bool
-	prepareflushendch        chan uint8
-	autoflush                bool
-	readfullboatmu           sync.Mutex
-	spacelen_pos             map[uint32][]byte
-	pathlockid               string
-	enablermpushlog          bool
-	compresstype             int
-	lastcompleteorderset     []uint32
-	fakelastblockendpos      uint64
-	splitcnt                 int
-	splittype                int
-	fixkeylen                int
-	fixkeyendbt              []byte
-	markrmpushfilemaxsize    int64
-	flockid                  int64
-	version                  int32
+	//markrmmap                sync.Map
+	//markpushmap              sync.Map
+	//markrmpushmap            sync.Map
+	markmu                *sync.RWMutex
+	markrmpushfile        *os.File
+	prepareflush          bool
+	prepareflushendch     chan uint8
+	autoflush             bool
+	readfullboatmu        sync.Mutex
+	spacelen_pos          map[uint32][]byte
+	pathlockid            string
+	enablermpushlog       bool
+	compresstype          int
+	lastcompleteorderset  []uint32
+	fakelastblockendpos   uint64
+	splitcnt              int
+	splittype             int
+	fixkeylen             int
+	fixkeyendbt           []byte
+	markrmpushfilemaxsize int64
+	flockid               int64
+	version               int32
 }
 
 const (
@@ -202,7 +202,9 @@ func (orderf *OrderFile) open(path string, compresstype int, fixkeylength int, f
 	if corfstateerror == nil {
 		fmt.Println(path + ":maybe did not correct close. remove the .beopen file can to recover it.")
 		//panic(path + ":maybe did not correct close. remove the .beopen file can to recover it.")
-		Backup(path)
+		if allowmultiopenfortest {
+			Backup(path)
+		}
 	}
 	orderf.path = path
 
@@ -364,7 +366,7 @@ func (orderf *OrderFile) open(path string, compresstype int, fixkeylength int, f
 	orderf.prepareflush = false
 	orderf.prepareflushendch = make(chan uint8, 0)
 	orderf.autoflush = true
-	orderf.enablermpushlog = true
+	orderf.enablermpushlog = false
 	orderf.lastcompleteorderset = make([]uint32, 0, 1024)
 	orderf.markrmpushfilemaxsize = 5 * 1024 * 1024 * 1024
 
@@ -394,6 +396,7 @@ func (orderf *OrderFile) open(path string, compresstype int, fixkeylength int, f
 		readlen := int64(0)
 		loadcount := 0
 		bnormalbreak := true
+		normalendpos := int64(0)
 		for i := int64(0); i < endpos; {
 			readlen = int64(len(orderf.fileendwritebuf)) - readfrom
 			if i+readlen > endpos {
@@ -428,9 +431,11 @@ func (orderf *OrderFile) open(path string, compresstype int, fixkeylength int, f
 					break
 				}
 				if bdel {
-					orderf.markrmpushmap.Delete(string(orderf.fileendwritebuf[curi+4 : curi+4+val]))
-					orderf.markrmmap.Store(string(orderf.fileendwritebuf[curi+4:curi+4+val]), true)
+					//orderf.markrmpushmap.Delete(string(orderf.fileendwritebuf[curi+4 : curi+4+val]))
+					//orderf.markrmmap.Store(string(orderf.fileendwritebuf[curi+4:curi+4+val]), true)
+					orderf.RealRm(BytesCombine(orderf.fileendwritebuf[curi+4:curi+4+val], orderf.fixkeyendbt))
 					curi += 4 + val
+					normalendpos = i + curi
 				} else {
 					key := orderf.fileendwritebuf[curi+4 : curi+4+val]
 					if curi+4+val+4 > readfrom+readlen {
@@ -446,38 +451,42 @@ func (orderf *OrderFile) open(path string, compresstype int, fixkeylength int, f
 						bnormalbreak = false
 						break
 					}
-					orderf.markrmmap.Delete(string(key))
-					orderf.markrmpushmap.Store(string(key), BytesClone(orderf.fileendwritebuf[curi+4+val+4:curi+4+val+4+val2]))
+					//orderf.markrmmap.Delete(string(key))
+					//orderf.markrmpushmap.Store(string(key), BytesClone(orderf.fileendwritebuf[curi+4+val+4:curi+4+val+4+val2]))
+					orderf.RealRmPush(BytesCombine(key, orderf.fixkeyendbt), orderf.fileendwritebuf[curi+4+val+4:curi+4+val+4+val2])
 					loadcount += 1
 					curi += 4 + val + 4 + val2
+					normalendpos = i + curi
 				}
 			}
 			i += readlen
 		}
 		if bnormalbreak == false {
-			orderf.markrmpushfile.Close()
-			os.Rename(orderf.path+".rmpush", orderf.path+".broken"+strconv.FormatInt(time.Now().Unix(), 10)+".rmpush")
-			orderf.markrmpushfile, _ = os.Create(orderf.path + ".rmpush")
-			orderf.markrmmap.Range(func(key, val interface{}) bool {
-				keylen := uint32(len([]byte(key.(string)))) | (uint32(1) << 31)
-				binary.BigEndian.PutUint32(cvtbuf, keylen)
-				orderf.markrmpushfile.Write(cvtbuf[:4])
-				orderf.markrmpushfile.Write([]byte(key.(string)))
-				return true
-			})
-			orderf.markrmpushmap.Range(func(key, val interface{}) bool {
-				keylen := uint32(len([]byte(key.(string))))
-				binary.BigEndian.PutUint32(cvtbuf, keylen)
-				orderf.markrmpushfile.Write(cvtbuf[:4])
-				orderf.markrmpushfile.Write([]byte(key.(string)))
+			// orderf.markrmpushfile.Close()
+			// os.Rename(orderf.path+".rmpush", orderf.path+".broken"+strconv.FormatInt(time.Now().Unix(), 10)+".rmpush")
+			// orderf.markrmpushfile, _ = os.Create(orderf.path + ".rmpush")
+			// orderf.markrmmap.Range(func(key, val interface{}) bool {
+			// 	keylen := uint32(len([]byte(key.(string)))) | (uint32(1) << 31)
+			// 	binary.BigEndian.PutUint32(cvtbuf, keylen)
+			// 	orderf.markrmpushfile.Write(cvtbuf[:4])
+			// 	orderf.markrmpushfile.Write([]byte(key.(string)))
+			// 	return true
+			// })
+			// orderf.markrmpushmap.Range(func(key, val interface{}) bool {
+			// 	keylen := uint32(len([]byte(key.(string))))
+			// 	binary.BigEndian.PutUint32(cvtbuf, keylen)
+			// 	orderf.markrmpushfile.Write(cvtbuf[:4])
+			// 	orderf.markrmpushfile.Write([]byte(key.(string)))
 
-				vallen := uint32(len(val.([]byte)))
-				binary.BigEndian.PutUint32(cvtbuf, vallen)
-				orderf.markrmpushfile.Write(cvtbuf[:4])
-				orderf.markrmpushfile.Write(val.([]byte))
-				return true
-			})
-			orderf.markrmpushfile.Sync()
+			// 	vallen := uint32(len(val.([]byte)))
+			// 	binary.BigEndian.PutUint32(cvtbuf, vallen)
+			// 	orderf.markrmpushfile.Write(cvtbuf[:4])
+			// 	orderf.markrmpushfile.Write(val.([]byte))
+			// 	return true
+			// })
+			// orderf.markrmpushfile.Sync()
+
+			orderf.markrmpushfile.Truncate(normalendpos)
 		}
 		fmt.Println(orderf.path, "Load Count:", loadcount)
 	}
@@ -649,10 +658,12 @@ func (orderf *OrderFile) open(path string, compresstype int, fixkeylength int, f
 					saveingf.Seek(0, os.SEEK_SET)
 					readfrom := int64(0)
 					curi := int64(0)
-					markrmmap := &sync.Map{}
-					markrmpushmap := &sync.Map{}
+					//markrmmap := &sync.Map{}
+					//markrmpushmap := &sync.Map{}
 					readlen := int64(0)
 					bnormalbreak := true
+					normalendpos := int64(0)
+					rmpushrempf, _ := os.Create(orderf.path + ".rmpushtemp")
 					for i := int64(0); i < endpos; {
 						readlen = int64(len(orderf.fileendwritebuf)) - readfrom
 						if i+readlen > endpos {
@@ -687,13 +698,20 @@ func (orderf *OrderFile) open(path string, compresstype int, fixkeylength int, f
 								break
 							}
 							if bdel {
-								_, ok1 := orderf.markrmmap.Load(string(orderf.fileendwritebuf[curi+4 : curi+4+val]))
-								_, ok2 := orderf.markrmpushmap.Load(string(orderf.fileendwritebuf[curi+4 : curi+4+val]))
-								if ok1 == false && ok2 == false {
-									markrmpushmap.Delete(string(orderf.fileendwritebuf[curi+4 : curi+4+val]))
-									markrmmap.Store(string(orderf.fileendwritebuf[curi+4:curi+4+val]), true)
-								}
+								// _, ok1 := orderf.markrmmap.Load(string(orderf.fileendwritebuf[curi+4 : curi+4+val]))
+								// _, ok2 := orderf.markrmpushmap.Load(string(orderf.fileendwritebuf[curi+4 : curi+4+val]))
+								// if ok1 == false && ok2 == false {
+								// 	markrmpushmap.Delete(string(orderf.fileendwritebuf[curi+4 : curi+4+val]))
+								// 	markrmmap.Store(string(orderf.fileendwritebuf[curi+4:curi+4+val]), true)
+								// }
+
+								keylen := uint32(uint32(len(orderf.fileendwritebuf[curi+4:curi+4+val])) | (uint32(1) << 31))
+								binary.BigEndian.PutUint32(cvtbuf, keylen)
+								rmpushrempf.Write(cvtbuf[:4])
+								rmpushrempf.Write(orderf.fileendwritebuf[curi+4 : curi+4+val])
+								orderf.RealRm(BytesCombine(orderf.fileendwritebuf[curi+4:curi+4+val], orderf.fixkeyendbt))
 								curi += 4 + val
+								normalendpos = i + curi
 							} else {
 								key := orderf.fileendwritebuf[curi+4 : curi+4+val]
 								if curi+4+val+4 > readfrom+readlen {
@@ -709,60 +727,84 @@ func (orderf *OrderFile) open(path string, compresstype int, fixkeylength int, f
 									bnormalbreak = false
 									break
 								}
-								_, ok1 := orderf.markrmmap.Load(string(orderf.fileendwritebuf[curi+4+val+4 : curi+4+val+4+val2]))
-								_, ok2 := orderf.markrmpushmap.Load(string(orderf.fileendwritebuf[curi+4+val+4 : curi+4+val+4+val2]))
-								if ok1 == false && ok2 == false {
-									markrmmap.Delete(string(key))
-									markrmpushmap.Store(string(key), BytesClone(orderf.fileendwritebuf[curi+4+val+4:curi+4+val+4+val2]))
-								}
+								// _, ok1 := orderf.markrmmap.Load(string(orderf.fileendwritebuf[curi+4+val+4 : curi+4+val+4+val2]))
+								// _, ok2 := orderf.markrmpushmap.Load(string(orderf.fileendwritebuf[curi+4+val+4 : curi+4+val+4+val2]))
+								// if ok1 == false && ok2 == false {
+								// 	markrmmap.Delete(string(key))
+								// 	markrmpushmap.Store(string(key), BytesClone(orderf.fileendwritebuf[curi+4+val+4:curi+4+val+4+val2]))
+								// }
+
+								keylen := uint32(len(key))
+								binary.BigEndian.PutUint32(cvtbuf, keylen)
+								rmpushrempf.Write(cvtbuf[:4])
+								rmpushrempf.Write(key)
+
+								vallen := uint32(len(orderf.fileendwritebuf[curi+4+val+4 : curi+4+val+4+val2]))
+								binary.BigEndian.PutUint32(cvtbuf, vallen)
+								rmpushrempf.Write(cvtbuf[:4])
+								rmpushrempf.Write(orderf.fileendwritebuf[curi+4+val+4 : curi+4+val+4+val2])
+
+								orderf.RealRmPush(BytesCombine(key, orderf.fixkeyendbt), orderf.fileendwritebuf[curi+4+val+4:curi+4+val+4+val2])
 								curi += 4 + val + 4 + val2
+								normalendpos = i + curi
 							}
 						}
 						i += readlen
 					}
-					if bnormalbreak == false {
-						//maybe need not merge
-					}
-					markrmmap.Range(func(key, val interface{}) bool {
-						orderf.markrmmap.Store(key, true)
-						return true
-					})
-					markrmpushmap.Range(func(key, val interface{}) bool {
-						orderf.markrmpushmap.Store(key, val)
-						return true
-					})
-					//build new log
-					rmpushrempf, _ := os.Create(orderf.path + ".rmpushtemp")
-					orderf.markrmmap.Range(func(key, val interface{}) bool {
-						keylen := uint32(len([]byte(key.(string)))) | (uint32(1) << 31)
-						binary.BigEndian.PutUint32(cvtbuf, keylen)
-						rmpushrempf.Write(cvtbuf[:4])
-						rmpushrempf.Write([]byte(key.(string)))
-						return true
-					})
-					orderf.markrmpushmap.Range(func(key, val interface{}) bool {
-						keylen := uint32(len([]byte(key.(string))))
-						binary.BigEndian.PutUint32(cvtbuf, keylen)
-						rmpushrempf.Write(cvtbuf[:4])
-						rmpushrempf.Write([]byte(key.(string)))
+					// if bnormalbreak == false {
+					// 	//maybe need not merge
+					// }
+					// markrmmap.Range(func(key, val interface{}) bool {
+					// 	orderf.markrmmap.Store(key, true)
+					// 	return true
+					// })
+					// markrmpushmap.Range(func(key, val interface{}) bool {
+					// 	orderf.markrmpushmap.Store(key, val)
+					// 	return true
+					// })
+					// //build new log
+					// rmpushrempf, _ := os.Create(orderf.path + ".rmpushtemp")
+					// orderf.markrmmap.Range(func(key, val interface{}) bool {
+					// 	keylen := uint32(len([]byte(key.(string)))) | (uint32(1) << 31)
+					// 	binary.BigEndian.PutUint32(cvtbuf, keylen)
+					// 	rmpushrempf.Write(cvtbuf[:4])
+					// 	rmpushrempf.Write([]byte(key.(string)))
+					// 	return true
+					// })
+					// orderf.markrmpushmap.Range(func(key, val interface{}) bool {
+					// 	keylen := uint32(len([]byte(key.(string))))
+					// 	binary.BigEndian.PutUint32(cvtbuf, keylen)
+					// 	rmpushrempf.Write(cvtbuf[:4])
+					// 	rmpushrempf.Write([]byte(key.(string)))
 
-						vallen := uint32(len(val.([]byte)))
-						binary.BigEndian.PutUint32(cvtbuf, vallen)
-						rmpushrempf.Write(cvtbuf[:4])
-						rmpushrempf.Write(val.([]byte))
-						return true
-					})
+					// 	vallen := uint32(len(val.([]byte)))
+					// 	binary.BigEndian.PutUint32(cvtbuf, vallen)
+					// 	rmpushrempf.Write(cvtbuf[:4])
+					// 	rmpushrempf.Write(val.([]byte))
+					// 	return true
+					// })
+					// rmpushrempf.Close()
+					// orderf.markrmpushfile.Sync()
+					// //exec.Command("sync")
+					// //time.Sleep(10 * time.Millisecond)
+					// orderfiletool.WriteFile(orderf.path+".rmpushtempok", []byte{})
+					// orderf.markrmpushfile.Close()
+
+					rmpushrempf.Sync()
 					rmpushrempf.Close()
-					orderf.markrmpushfile.Sync()
-					//exec.Command("sync")
-					//time.Sleep(10 * time.Millisecond)
-					orderfiletool.WriteFile(orderf.path+".rmpushtempok", []byte{})
-					orderf.markrmpushfile.Close()
+
 					os.Remove(orderf.path + ".rmpush")
 					os.Rename(orderf.path+".rmpushtemp", orderf.path+".rmpush")
 					//exec.Command("sync")
 					orderf.markrmpushfile, _ = os.OpenFile(orderf.path+".rmpush", os.O_RDWR, 0666)
 					orderf.markrmpushfile.Seek(0, os.SEEK_END)
+
+					if bnormalbreak == false {
+						saveingf.Seek(normalendpos, os.SEEK_SET)
+						erdata := make([]byte, endpos-normalendpos)
+						saveingf.Read(erdata)
+						orderfiletool.WriteFile(orderf.path+".rmpushinsave.bad", erdata)
+					}
 				}
 				saveingf.Close()
 			}
@@ -1241,63 +1283,64 @@ func BlockFlush(orderf *OrderFile) {
 				//orderf.ErrorRecord("F", []byte{}, nil)
 				orderf.markmu.Lock()
 				os.Remove(orderf.path + ".headsaveok")
+				orderf.markrmpushfile.Sync()
 				orderf.markrmpushfile.Close()
 				os.Remove(orderf.path + ".rmpushinsave")
-				inmf, _ := os.Create(orderf.path + ".rmpushinmem")
+				//inmf, _ := os.Create(orderf.path + ".rmpushinmem")
 				os.Rename(orderf.path+".rmpush", orderf.path+".rmpushinsave")
 				orderf.markrmpushfile, _ = os.Create(orderf.path + ".rmpush")
-				intempcnt := 0
+				//intempcnt := 0
 				//runpos = 2
-				if orderf.enablermpushlog {
-					cvtbuf := make([]byte, 8)
-					orderf.markrmmap.Range(func(key, val interface{}) bool {
-						keylen := len([]byte(key.(string)))
-						binary.BigEndian.PutUint32(cvtbuf, uint32(keylen)|(uint32(1)<<31))
-						orderf.markrmpushfile.Write(cvtbuf[:4])
-						orderf.markrmpushfile.Write([]byte(key.(string)))
-						inmf.Write(cvtbuf[:4])
-						inmf.Write([]byte(key.(string)))
-						return true
-					})
-					orderf.markpushmap.Range(func(key, val interface{}) bool {
-						keylen := len([]byte(key.(string)))
-						binary.BigEndian.PutUint32(cvtbuf, uint32(keylen))
-						orderf.markrmpushfile.Write(cvtbuf[:4])
-						orderf.markrmpushfile.Write([]byte(key.(string)))
+				// if orderf.enablermpushlog {
+				// 	cvtbuf := make([]byte, 8)
+				// 	orderf.markrmmap.Range(func(key, val interface{}) bool {
+				// 		keylen := len([]byte(key.(string)))
+				// 		binary.BigEndian.PutUint32(cvtbuf, uint32(keylen)|(uint32(1)<<31))
+				// 		orderf.markrmpushfile.Write(cvtbuf[:4])
+				// 		orderf.markrmpushfile.Write([]byte(key.(string)))
+				// 		inmf.Write(cvtbuf[:4])
+				// 		inmf.Write([]byte(key.(string)))
+				// 		return true
+				// 	})
+				// 	orderf.markpushmap.Range(func(key, val interface{}) bool {
+				// 		keylen := len([]byte(key.(string)))
+				// 		binary.BigEndian.PutUint32(cvtbuf, uint32(keylen))
+				// 		orderf.markrmpushfile.Write(cvtbuf[:4])
+				// 		orderf.markrmpushfile.Write([]byte(key.(string)))
 
-						inmf.Write(cvtbuf[:4])
-						inmf.Write([]byte(key.(string)))
+				// 		inmf.Write(cvtbuf[:4])
+				// 		inmf.Write([]byte(key.(string)))
 
-						binary.BigEndian.PutUint32(cvtbuf, uint32(0))
-						orderf.markrmpushfile.Write(cvtbuf[:4])
+				// 		binary.BigEndian.PutUint32(cvtbuf, uint32(0))
+				// 		orderf.markrmpushfile.Write(cvtbuf[:4])
 
-						inmf.Write(cvtbuf[:4])
+				// 		inmf.Write(cvtbuf[:4])
 
-						intempcnt += 1
-						return true
-					})
-					orderf.markrmpushmap.Range(func(key, val interface{}) bool {
-						keylen := len([]byte(key.(string)))
-						binary.BigEndian.PutUint32(cvtbuf, uint32(keylen))
-						orderf.markrmpushfile.Write(cvtbuf[:4])
-						orderf.markrmpushfile.Write([]byte(key.(string)))
+				// 		intempcnt += 1
+				// 		return true
+				// 	})
+				// 	orderf.markrmpushmap.Range(func(key, val interface{}) bool {
+				// 		keylen := len([]byte(key.(string)))
+				// 		binary.BigEndian.PutUint32(cvtbuf, uint32(keylen))
+				// 		orderf.markrmpushfile.Write(cvtbuf[:4])
+				// 		orderf.markrmpushfile.Write([]byte(key.(string)))
 
-						inmf.Write(cvtbuf[:4])
-						inmf.Write([]byte(key.(string)))
+				// 		inmf.Write(cvtbuf[:4])
+				// 		inmf.Write([]byte(key.(string)))
 
-						vallen := len(val.([]byte))
-						binary.BigEndian.PutUint32(cvtbuf, uint32(vallen))
-						orderf.markrmpushfile.Write(cvtbuf[:4])
-						orderf.markrmpushfile.Write(val.([]byte))
+				// 		vallen := len(val.([]byte))
+				// 		binary.BigEndian.PutUint32(cvtbuf, uint32(vallen))
+				// 		orderf.markrmpushfile.Write(cvtbuf[:4])
+				// 		orderf.markrmpushfile.Write(val.([]byte))
 
-						inmf.Write(cvtbuf[:4])
-						inmf.Write(val.([]byte))
-						intempcnt += 1
-						return true
-					})
-				}
+				// 		inmf.Write(cvtbuf[:4])
+				// 		inmf.Write(val.([]byte))
+				// 		intempcnt += 1
+				// 		return true
+				// 	})
+				// }
 				orderf.markrmpushfile.Sync()
-				inmf.Close()
+				//inmf.Close()
 				orderf.markmu.Unlock()
 				newsavedataf, _ := os.Create(orderf.path + ".newsavedata")
 				segindchan := make(chan uint32, 1)
@@ -1710,158 +1753,220 @@ func BlockFlush(orderf *OrderFile) {
 			}
 
 		} else {
-			//item alloc memory struct
-			cnt := 0
-			orderf.markmu.Lock()
-			orderf.markrmmap.Range(func(key, val interface{}) bool {
-				orderf.RealRm(append([]byte(key.(string)), orderf.fixkeyendbt...))
-				cnt += 1
-				orderf.markrmmap.Delete(key.(string))
-				if cnt == 10 {
-					return false
-				} else {
-					return true
-				}
-			})
-			if cnt < 10 {
-				orderf.markpushmap.Range(func(key, val interface{}) bool {
-					orderf.RealPush([]byte(key.(string)))
-					cnt += 1
-					orderf.markpushmap.Delete(key.(string))
-					if cnt == 10 {
-						return false
-					} else {
-						return true
-					}
-				})
-			}
-			if cnt < 10 {
-				orderf.markrmpushmap.Range(func(key, val interface{}) bool {
-					orderf.RealRmPush(append([]byte(key.(string)), orderf.fixkeyendbt...), val.([]byte))
-					cnt += 1
-					orderf.markrmpushmap.Delete(key.(string))
-					if cnt == 10 {
-						return false
-					} else {
-						return true
-					}
-				})
-			}
-			orderf.markmu.Unlock()
-			if cnt == 0 {
-				pushmapempty = true
-			} else {
-				pushmapempty = false
-			}
-			if cnt >= 10 {
-				continue
-			} else {
-				bsaveone := false
-				if orderf.autoflush == true && len(orderf.lastcompleteorderset) > 512 {
-					segind := orderf.lastcompleteorderset[0]
-					copy(orderf.lastcompleteorderset, orderf.lastcompleteorderset[1:])
-					orderf.lastcompleteorderset = orderf.lastcompleteorderset[:len(orderf.lastcompleteorderset)-1]
-					if segind < orderf.lastblockind {
-						segindblock, bsegindblock := orderf.cachemap.Load(segind)
-						if bsegindblock && segindblock.([]byte)[len(segindblock.([]byte))-1]&1 == 1 {
-							segindblock2 := segindblock.([]byte)
-							orderstart, orderlen, datapos, dataposlen, _ := getBlockPos(orderf.shorttable[24+segind*11 : 24+segind*11+2*11])
-							if datapos == 0 || datapos >= orderf.lastblockendpos {
-								if len(segindblock2)-8 > 0 {
-									segindblock2[len(segindblock2)-1] = segindblock2[len(segindblock2)-1] & 0xFE
-									segindblock2 = segindblock2[:len(segindblock2)-8]
-									var zblock []byte
-									if orderf.compresstype == 0 {
-										zblock = ZipEncode(nil, segindblock2, 1)
-									} else if orderf.compresstype == 1 {
-										zblock = SnappyEncode(nil, segindblock2)
-									} else if orderf.compresstype == 2 {
-										zblock = Lz4Encode(nil, segindblock2)
-									} else if orderf.compresstype == 3 {
-										zblock = XzEncode(nil, segindblock2)
-									} else if orderf.compresstype == 4 {
-										zblock = FlateEncode(nil, segindblock2, 1)
-									}
-									var writepos uint64
-									if uint64(len(zblock)) > dataposlen {
-										if dataposlen > 0 {
-											dataposbt := make([]byte, 8)
-											binary.BigEndian.PutUint64(dataposbt, datapos)
-											startposlist, bstartposlist := orderf.spacelen_pos[uint32(dataposlen)]
-											if bstartposlist {
-												orderf.spacelen_pos[uint32(dataposlen)] = append(startposlist, dataposbt[1:]...)
-											} else {
-												orderf.spacelen_pos[uint32(dataposlen)] = dataposbt[1:]
-											}
-										}
-										writepos = orderf.fakelastblockendpos
-										orderf.fakelastblockendpos += uint64(len(zblock))
-									} else {
-										//use old file space
-										writepos = datapos
-									}
-									orderf.readfullboatmu.Lock()
-									orderf.pathfile.Seek(int64(writepos), os.SEEK_SET)
-									orderf.pathfile.Write(zblock)
-									orderf.readfullboatmu.Unlock()
-									//fmt.Println("2writepos writelen", writepos, len(zblock), zblock)
-									setBlockPos(orderf.shorttable[24+segind*11:24+segind*11+2*11], orderstart, orderlen, writepos, uint64(len(zblock)), 0)
-									bsaveone = true
+			// //item alloc memory struct
+			// cnt := 0
+			// orderf.markmu.Lock()
+			// orderf.markrmmap.Range(func(key, val interface{}) bool {
+			// 	orderf.RealRm(append([]byte(key.(string)), orderf.fixkeyendbt...))
+			// 	cnt += 1
+			// 	orderf.markrmmap.Delete(key.(string))
+			// 	if cnt == 10 {
+			// 		return false
+			// 	} else {
+			// 		return true
+			// 	}
+			// })
+			// if cnt < 10 {
+			// 	orderf.markpushmap.Range(func(key, val interface{}) bool {
+			// 		orderf.RealPush([]byte(key.(string)))
+			// 		cnt += 1
+			// 		orderf.markpushmap.Delete(key.(string))
+			// 		if cnt == 10 {
+			// 			return false
+			// 		} else {
+			// 			return true
+			// 		}
+			// 	})
+			// }
+			// if cnt < 10 {
+			// 	orderf.markrmpushmap.Range(func(key, val interface{}) bool {
+			// 		orderf.RealRmPush(append([]byte(key.(string)), orderf.fixkeyendbt...), val.([]byte))
+			// 		cnt += 1
+			// 		orderf.markrmpushmap.Delete(key.(string))
+			// 		if cnt == 10 {
+			// 			return false
+			// 		} else {
+			// 			return true
+			// 		}
+			// 	})
+			// }
+			// orderf.markmu.Unlock()
+			// if cnt == 0 {
+			// 	pushmapempty = true
+			// } else {
+			// 	pushmapempty = false
+			// }
+			// if cnt >= 10 {
+			// 	continue
+			// } else {
+			// 	bsaveone := false
+			// 	if orderf.autoflush == true && len(orderf.lastcompleteorderset) > 512 {
+			// 		segind := orderf.lastcompleteorderset[0]
+			// 		copy(orderf.lastcompleteorderset, orderf.lastcompleteorderset[1:])
+			// 		orderf.lastcompleteorderset = orderf.lastcompleteorderset[:len(orderf.lastcompleteorderset)-1]
+			// 		if segind < orderf.lastblockind {
+			// 			segindblock, bsegindblock := orderf.cachemap.Load(segind)
+			// 			if bsegindblock && segindblock.([]byte)[len(segindblock.([]byte))-1]&1 == 1 {
+			// 				segindblock2 := segindblock.([]byte)
+			// 				orderstart, orderlen, datapos, dataposlen, _ := getBlockPos(orderf.shorttable[24+segind*11 : 24+segind*11+2*11])
+			// 				if datapos == 0 || datapos >= orderf.lastblockendpos {
+			// 					if len(segindblock2)-8 > 0 {
+			// 						segindblock2[len(segindblock2)-1] = segindblock2[len(segindblock2)-1] & 0xFE
+			// 						segindblock2 = segindblock2[:len(segindblock2)-8]
+			// 						var zblock []byte
+			// 						if orderf.compresstype == 0 {
+			// 							zblock = ZipEncode(nil, segindblock2, 1)
+			// 						} else if orderf.compresstype == 1 {
+			// 							zblock = SnappyEncode(nil, segindblock2)
+			// 						} else if orderf.compresstype == 2 {
+			// 							zblock = Lz4Encode(nil, segindblock2)
+			// 						} else if orderf.compresstype == 3 {
+			// 							zblock = XzEncode(nil, segindblock2)
+			// 						} else if orderf.compresstype == 4 {
+			// 							zblock = FlateEncode(nil, segindblock2, 1)
+			// 						}
+			// 						var writepos uint64
+			// 						if uint64(len(zblock)) > dataposlen {
+			// 							if dataposlen > 0 {
+			// 								dataposbt := make([]byte, 8)
+			// 								binary.BigEndian.PutUint64(dataposbt, datapos)
+			// 								startposlist, bstartposlist := orderf.spacelen_pos[uint32(dataposlen)]
+			// 								if bstartposlist {
+			// 									orderf.spacelen_pos[uint32(dataposlen)] = append(startposlist, dataposbt[1:]...)
+			// 								} else {
+			// 									orderf.spacelen_pos[uint32(dataposlen)] = dataposbt[1:]
+			// 								}
+			// 							}
+			// 							writepos = orderf.fakelastblockendpos
+			// 							orderf.fakelastblockendpos += uint64(len(zblock))
+			// 						} else {
+			// 							//use old file space
+			// 							writepos = datapos
+			// 						}
+			// 						orderf.readfullboatmu.Lock()
+			// 						orderf.pathfile.Seek(int64(writepos), os.SEEK_SET)
+			// 						orderf.pathfile.Write(zblock)
+			// 						orderf.readfullboatmu.Unlock()
+			// 						//fmt.Println("2writepos writelen", writepos, len(zblock), zblock)
+			// 						setBlockPos(orderf.shorttable[24+segind*11:24+segind*11+2*11], orderstart, orderlen, writepos, uint64(len(zblock)), 0)
+			// 						bsaveone = true
+			// 					}
+			// 				}
+			// 			}
+			// 		}
+			// 	}
+			// 	if !bsaveone {
+			// 		time.Sleep(333 * time.Millisecond)
+			// 	}
+			// }
+
+			bsaveone := false
+			if orderf.autoflush == true && len(orderf.lastcompleteorderset) > 512 {
+				segind := orderf.lastcompleteorderset[0]
+				copy(orderf.lastcompleteorderset, orderf.lastcompleteorderset[1:])
+				orderf.lastcompleteorderset = orderf.lastcompleteorderset[:len(orderf.lastcompleteorderset)-1]
+				if segind < orderf.lastblockind {
+					segindblock, bsegindblock := orderf.cachemap.Load(segind)
+					if bsegindblock && segindblock.([]byte)[len(segindblock.([]byte))-1]&1 == 1 {
+						segindblock2 := segindblock.([]byte)
+						orderstart, orderlen, datapos, dataposlen, _ := getBlockPos(orderf.shorttable[24+segind*11 : 24+segind*11+2*11])
+						if datapos == 0 || datapos >= orderf.lastblockendpos {
+							if len(segindblock2)-8 > 0 {
+								segindblock2[len(segindblock2)-1] = segindblock2[len(segindblock2)-1] & 0xFE
+								segindblock2 = segindblock2[:len(segindblock2)-8]
+								var zblock []byte
+								if orderf.compresstype == 0 {
+									zblock = ZipEncode(nil, segindblock2, 1)
+								} else if orderf.compresstype == 1 {
+									zblock = SnappyEncode(nil, segindblock2)
+								} else if orderf.compresstype == 2 {
+									zblock = Lz4Encode(nil, segindblock2)
+								} else if orderf.compresstype == 3 {
+									zblock = XzEncode(nil, segindblock2)
+								} else if orderf.compresstype == 4 {
+									zblock = FlateEncode(nil, segindblock2, 1)
 								}
+								var writepos uint64
+								if uint64(len(zblock)) > dataposlen {
+									if dataposlen > 0 {
+										dataposbt := make([]byte, 8)
+										binary.BigEndian.PutUint64(dataposbt, datapos)
+										startposlist, bstartposlist := orderf.spacelen_pos[uint32(dataposlen)]
+										if bstartposlist {
+											orderf.spacelen_pos[uint32(dataposlen)] = append(startposlist, dataposbt[1:]...)
+										} else {
+											orderf.spacelen_pos[uint32(dataposlen)] = dataposbt[1:]
+										}
+									}
+									writepos = orderf.fakelastblockendpos
+									orderf.fakelastblockendpos += uint64(len(zblock))
+								} else {
+									//use old file space
+									writepos = datapos
+								}
+								orderf.readfullboatmu.Lock()
+								orderf.pathfile.Seek(int64(writepos), os.SEEK_SET)
+								orderf.pathfile.Write(zblock)
+								orderf.readfullboatmu.Unlock()
+								//fmt.Println("2writepos writelen", writepos, len(zblock), zblock)
+								setBlockPos(orderf.shorttable[24+segind*11:24+segind*11+2*11], orderstart, orderlen, writepos, uint64(len(zblock)), 0)
+								bsaveone = true
 							}
 						}
 					}
 				}
-				if !bsaveone {
-					time.Sleep(333 * time.Millisecond)
-				}
+			}
+			if !bsaveone {
+				time.Sleep(333 * time.Millisecond)
 			}
 		}
 	}
 }
 
 func (orderf *OrderFile) WaitBufMapEmpty() {
-	for true {
-		if orderf.isopen == false {
-			return
-		}
-		var b1, b2, b3 bool = true, true, true
-		orderf.markrmmap.Range(func(key, val interface{}) bool {
-			b1 = false
-			return false
-		})
-		orderf.markpushmap.Range(func(key, val interface{}) bool {
-			b2 = false
-			return false
-		})
-		orderf.markrmpushmap.Range(func(key, val interface{}) bool {
-			b3 = false
-			return false
-		})
-		if b1 && b2 && b3 {
-			return
-		}
-		time.Sleep(10 * time.Millisecond)
-	}
+	// for true {
+	// 	if orderf.isopen == false {
+	// 		return
+	// 	}
+	// 	var b1, b2, b3 bool = true, true, true
+	// 	orderf.markrmmap.Range(func(key, val interface{}) bool {
+	// 		b1 = false
+	// 		return false
+	// 	})
+	// 	orderf.markpushmap.Range(func(key, val interface{}) bool {
+	// 		b2 = false
+	// 		return false
+	// 	})
+	// 	orderf.markrmpushmap.Range(func(key, val interface{}) bool {
+	// 		b3 = false
+	// 		return false
+	// 	})
+	// 	if b1 && b2 && b3 {
+	// 		return
+	// 	}
+	// 	time.Sleep(10 * time.Millisecond)
+	// }
 }
 
 func (orderf *OrderFile) IsBufMapEmpty() bool {
-	var b1, b2, b3 bool = true, true, true
-	orderf.markmu.Lock()
-	orderf.markrmmap.Range(func(key, val interface{}) bool {
-		b1 = false
-		return false
-	})
-	orderf.markpushmap.Range(func(key, val interface{}) bool {
-		b2 = false
-		return false
-	})
-	orderf.markrmpushmap.Range(func(key, val interface{}) bool {
-		b3 = false
-		return false
-	})
-	orderf.markmu.Unlock()
-	return b1 && b2 && b3
+	// var b1, b2, b3 bool = true, true, true
+	// orderf.markmu.Lock()
+	// orderf.markrmmap.Range(func(key, val interface{}) bool {
+	// 	b1 = false
+	// 	return false
+	// })
+	// orderf.markpushmap.Range(func(key, val interface{}) bool {
+	// 	b2 = false
+	// 	return false
+	// })
+	// orderf.markrmpushmap.Range(func(key, val interface{}) bool {
+	// 	b3 = false
+	// 	return false
+	// })
+	// orderf.markmu.Unlock()
+	// return b1 && b2 && b3
+
+	return true
 }
 
 func DBCompress(orderdbpath string, replaceoldfile bool, tailspace int) bool {
@@ -2013,18 +2118,18 @@ func (orderf *OrderFile) Close() bool {
 		orderf.cachemap.Delete(key)
 		return true
 	})
-	orderf.markrmmap.Range(func(key, val interface{}) bool {
-		orderf.markrmmap.Delete(key)
-		return true
-	})
-	orderf.markpushmap.Range(func(key, val interface{}) bool {
-		orderf.markpushmap.Delete(key)
-		return true
-	})
-	orderf.markrmpushmap.Range(func(key, val interface{}) bool {
-		orderf.markpushmap.Delete(key)
-		return true
-	})
+	// orderf.markrmmap.Range(func(key, val interface{}) bool {
+	// 	orderf.markrmmap.Delete(key)
+	// 	return true
+	// })
+	// orderf.markpushmap.Range(func(key, val interface{}) bool {
+	// 	orderf.markpushmap.Delete(key)
+	// 	return true
+	// })
+	// orderf.markrmpushmap.Range(func(key, val interface{}) bool {
+	// 	orderf.markpushmap.Delete(key)
+	// 	return true
+	// })
 	for key, _ := range orderf.releasespacels {
 		delete(orderf.releasespacels, key)
 	}
@@ -2677,19 +2782,19 @@ func (orderf *OrderFile) FillKey(key []byte) ([]byte, bool) {
 	if !orderf.isopen {
 		return []byte{}, false
 	}
-	orderf.markmu.RLock()
-	_, keyvok := orderf.markrmmap.Load(string(key))
-	if keyvok {
-		orderf.markmu.RUnlock()
-		return nil, false
-	}
-	keyv, keyvok := orderf.markrmpushmap.Load(string(key))
-	if keyvok {
-		orderf.markmu.RUnlock()
-		return BytesCombine(append(key, orderf.fixkeyendbt...), keyv.([]byte)), true
-	}
-	orderf.markmu.RUnlock()
-	return orderf.RealFill(append(key, orderf.fixkeyendbt...))
+	// orderf.markmu.RLock()
+	// _, keyvok := orderf.markrmmap.Load(string(key))
+	// if keyvok {
+	// 	orderf.markmu.RUnlock()
+	// 	return nil, false
+	// }
+	// keyv, keyvok := orderf.markrmpushmap.Load(string(key))
+	// if keyvok {
+	// 	orderf.markmu.RUnlock()
+	// 	return BytesCombine(append(key, orderf.fixkeyendbt...), keyv.([]byte)), true
+	// }
+	// orderf.markmu.RUnlock()
+	return orderf.RealFill(BytesCombine(key, orderf.fixkeyendbt))
 }
 
 func (orderf *OrderFile) RealFill(key []byte) ([]byte, bool) {
@@ -2808,14 +2913,14 @@ func (orderf *OrderFile) KeyExists(key []byte) bool {
 		return false
 	}
 
-	orderf.markmu.RLock()
-	_, keyvok := orderf.markrmpushmap.Load(string(key))
-	if keyvok {
-		orderf.markmu.RUnlock()
-		return true
-	}
-	orderf.markmu.RUnlock()
-	return orderf.RealKeyExists(key)
+	// orderf.markmu.RLock()
+	// _, keyvok := orderf.markrmpushmap.Load(string(key))
+	// if keyvok {
+	// 	orderf.markmu.RUnlock()
+	// 	return true
+	// }
+	// orderf.markmu.RUnlock()
+	return orderf.RealKeyExists(BytesCombine(key, orderf.fixkeyendbt))
 }
 
 func (orderf *OrderFile) RealKeyExists(key []byte) bool {
@@ -2911,20 +3016,20 @@ func (orderf *OrderFile) RandGet() (rtkey []byte) {
 	if !orderf.isopen {
 		return nil
 	}
-	randval := rand.Int63() % (1 + orderf.Count())
-	if randval == 0 {
-		orderf.markmu.RLock()
-		var rtval []byte = nil
-		orderf.markrmpushmap.Range(func(key, val interface{}) bool {
-			rtkey = []byte(key.(string))
-			rtval = val.([]byte)
-			return false
-		})
-		orderf.markmu.RUnlock()
-		if rtkey != nil {
-			return append(rtkey, rtval...)
-		}
-	}
+	// randval := rand.Int63() % (1 + orderf.Count())
+	// if randval == 0 {
+	// 	orderf.markmu.RLock()
+	// 	var rtval []byte = nil
+	// 	orderf.markrmpushmap.Range(func(key, val interface{}) bool {
+	// 		rtkey = []byte(key.(string))
+	// 		rtval = val.([]byte)
+	// 		return false
+	// 	})
+	// 	orderf.markmu.RUnlock()
+	// 	if rtkey != nil {
+	// 		return append(rtkey, rtval...)
+	// 	}
+	// }
 	return orderf.RealRandGet()
 }
 
@@ -3433,8 +3538,9 @@ func (orderf *OrderFile) Push(fullkey []byte) bool {
 	}
 
 	orderf.markmu.Lock()
-	orderf.markrmmap.Delete(string(fullkey))
-	orderf.markpushmap.Store(string(fullkey), true)
+	//
+	//orderf.markrmmap.Delete(string(fullkey))
+	//orderf.markpushmap.Store(string(fullkey), true)
 
 	if orderf.enablermpushlog {
 		cvtbuf := make([]byte, 8)
@@ -3449,6 +3555,8 @@ func (orderf *OrderFile) Push(fullkey []byte) bool {
 		orderf.markrmpushfile.Write(cvtbuf[:4])
 		orderf.markrmpushfile.Write(val)
 	}
+
+	orderf.RealPush(fullkey)
 	orderf.markmu.Unlock()
 	return true
 }
@@ -3463,8 +3571,9 @@ func (orderf *OrderFile) PushKey(key, val []byte) bool {
 	}
 
 	orderf.markmu.Lock()
-	orderf.markrmmap.Delete(string(key))
-	orderf.markrmpushmap.Store(string(key), val)
+	//slower than real. so temp remove
+	//orderf.markrmmap.Delete(string(key))
+	//orderf.markrmpushmap.Store(string(key), val)
 
 	if orderf.enablermpushlog {
 		cvtbuf := make([]byte, 8)
@@ -3478,6 +3587,8 @@ func (orderf *OrderFile) PushKey(key, val []byte) bool {
 		orderf.markrmpushfile.Write(cvtbuf[:4])
 		orderf.markrmpushfile.Write(val)
 	}
+
+	orderf.RealRmPush(BytesCombine(key, orderf.fixkeyendbt), val)
 	orderf.markmu.Unlock()
 	return true
 }
@@ -3769,9 +3880,9 @@ func (orderf *OrderFile) RmKey(key []byte) bool {
 		return false
 	}
 	orderf.markmu.Lock()
-	orderf.markrmmap.Store(string(key), true)
-	orderf.markrmpushmap.Delete(string(key))
-	orderf.markpushmap.Delete(string(key))
+	//orderf.markrmmap.Store(string(key), true)
+	//orderf.markrmpushmap.Delete(string(key))
+	//orderf.markpushmap.Delete(string(key))
 
 	if orderf.enablermpushlog {
 		cvtbuf := make([]byte, 8)
@@ -3780,6 +3891,8 @@ func (orderf *OrderFile) RmKey(key []byte) bool {
 		orderf.markrmpushfile.Write(cvtbuf[:4])
 		orderf.markrmpushfile.Write(key)
 	}
+
+	orderf.RealRm(BytesCombine(key, orderf.fixkeyendbt))
 	orderf.markmu.Unlock()
 	return true
 }
@@ -4567,14 +4680,15 @@ func (orderf *OrderFile) NextKey(curkey []byte) (nextkey []byte, bnext bool) {
 		}
 		orderf.ordermu.RUnlock()
 		if bmovenext == false {
-			orderf.markmu.Lock()
-			_, bdelload := orderf.markrmmap.Load(string(result))
-			orderf.markmu.Unlock()
-			if bdelload == false {
-				return result, bresult
-			}
-			curkey = result
-			continue
+			return result, bresult
+			// orderf.markmu.Lock()
+			// _, bdelload := orderf.markrmmap.Load(string(result))
+			// orderf.markmu.Unlock()
+			// if bdelload == false {
+			// 	return result, bresult
+			// }
+			// curkey = result
+			// continue
 		} else {
 			return []byte{}, false
 		}
@@ -4809,15 +4923,16 @@ func (orderf *OrderFile) PreviousKey(curkey []byte) (previouskey []byte, bprevio
 				curkey = append(curkey2, []byte{0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff}...)
 				continue
 			}
-			orderf.markmu.Lock()
-			_, bdelload := orderf.markrmmap.Load(string(result))
-			orderf.markmu.Unlock()
-			if bdelload == false {
-				//runch <- 1
-				return result, bresult
-			}
-			curkey = result
-			continue
+			return result, bresult
+			// orderf.markmu.Lock()
+			// _, bdelload := orderf.markrmmap.Load(string(result))
+			// orderf.markmu.Unlock()
+			// if bdelload == false {
+			// 	//runch <- 1
+			// 	return result, bresult
+			// }
+			// curkey = result
+			// continue
 		} else {
 			//runch <- 1
 			return []byte{}, false

@@ -292,3 +292,13 @@ func Benchmark1MillionBadgerRead(t *testing.B) {
 	db.Close()
 	fmt.Println("Close time:", (time.Now().UnixNano()-ts4)/int64(time.Millisecond), "Millisecond")
 }
+
+func BechmarkEncode(t *testing.B) {
+	ctt, _ := ioutil.ReadFile("testtext1.txt")
+	start := time.Now()
+	cst := ZipEncode(nil, ctt, 1)
+	fmt.Println(time.Since(start).Microseconds(), len(cst), "zipencode")
+	start = time.Now()
+	cst = XzEncode(nil, ctt)
+	fmt.Println(time.Since(start).Microseconds(), len(cst), "xzencode")
+}
