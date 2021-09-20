@@ -2187,21 +2187,9 @@ func v4simreadFullBoatNoZipcheck(objsetname string, ch chan int, pos, postime *i
 }
 
 func (orderf *OrderFile) readFullBoatNoZip(boatoffsetid uint64) []byte {
-	// runch := make(chan int, 0)
-	// runpos := int64(0)
-	// runpostime := time.Now().Local().Unix()
-	// var runstr string
-	// go v4simreadFullBoatNoZipcheck(string(""), runch, &runpos, &runpostime, &runstr)
-
 	blockind := orderf.quickFindOrderInd(boatoffsetid)
 	orderstart, orderlen, datapos, dataposlen, truncblock := getBlockPos(orderf.shorttable[24+blockind*11 : 24+blockind*11+2*11])
 
-	defer func() {
-		if r := recover(); r != nil {
-			fmt.Printf(orderf.path, "readFullBoatNoZip 1621 boatoffsetid", boatoffsetid, "orderstart, orderlen, datapos, dataposlen, truncblock", orderstart, orderlen, datapos, dataposlen, truncblock)
-			panic(r)
-		}
-	}()
 	orderf.readfullboatmu.Lock()
 	celldata2, bcelldata2 := orderf.cachemap.Load(uint32(blockind))
 	oldcntval := uint64(0)
@@ -2799,14 +2787,6 @@ func (orderf *OrderFile) FillKey(key []byte) ([]byte, bool) {
 }
 
 func (orderf *OrderFile) RealFill(key []byte) ([]byte, bool) {
-	defer func() {
-		if r := recover(); r != nil {
-			fmt.Printf(orderf.path, key, "FillKey 2092", r)
-			fmt.Println(runtime.Caller(0))
-			panic(r)
-		}
-	}()
-
 	orderf.ordermu.RLock()
 
 	//runpos = 2
@@ -2925,14 +2905,6 @@ func (orderf *OrderFile) KeyExists(key []byte) bool {
 }
 
 func (orderf *OrderFile) RealKeyExists(key []byte) bool {
-	defer func() {
-		if r := recover(); r != nil {
-			fmt.Printf(orderf.path, key, "FillKey 2092", r)
-			fmt.Println(runtime.Caller(0))
-			panic(r)
-		}
-	}()
-
 	if orderf.fixkeylen > 0 && len(key) != orderf.fixkeylen {
 		return false
 	}
@@ -3035,14 +3007,6 @@ func (orderf *OrderFile) RandGet() (rtkey []byte) {
 }
 
 func (orderf *OrderFile) RealRandGet() (rtkey []byte) {
-	defer func() {
-		if r := recover(); r != nil {
-			fmt.Printf(orderf.path, "RealRandGet 2743", r)
-			fmt.Println(runtime.Caller(0))
-			panic(r)
-		}
-	}()
-
 	orderf.ordermu.RLock()
 
 	rootboatoffset := binary.BigEndian.Uint64(append([]byte{0, 0}, orderf.shorttable[0:6]...))
@@ -3118,14 +3082,6 @@ func (orderf *OrderFile) nextMaxMatch(boat, sentence []byte, sentencecuri int, w
 }
 
 func (orderf *OrderFile) MaxMatch(sentence []byte) (wordmavec []uint32) {
-	defer func() {
-		if r := recover(); r != nil {
-			fmt.Printf(orderf.path, "MaxMatch 2821", r)
-			fmt.Println(runtime.Caller(0))
-			panic(r)
-		}
-	}()
-
 	orderf.ordermu.RLock()
 
 	rootboatoffset := binary.BigEndian.Uint64(append([]byte{0, 0}, orderf.shorttable[0:6]...))
@@ -3556,9 +3512,9 @@ func (orderf *OrderFile) Push(fullkey []byte) bool {
 		orderf.markrmpushfile.Write(val)
 	}
 
-	orderf.RealPush(fullkey)
+	bpush := orderf.RealPush(fullkey)
 	orderf.markmu.Unlock()
-	return true
+	return bpush
 }
 
 func (orderf *OrderFile) PushKey(key, val []byte) bool {
@@ -3586,19 +3542,12 @@ func (orderf *OrderFile) PushKey(key, val []byte) bool {
 		orderf.markrmpushfile.Write(val)
 	}
 
-	orderf.RealRmPush(BytesCombine(key, orderf.fixkeyendbt), val)
+	bpush := orderf.RealRmPush(BytesCombine(key, orderf.fixkeyendbt), val)
 	orderf.markmu.Unlock()
-	return true
+	return bpush
 }
 
 func (orderf *OrderFile) RealPush(word []byte) bool {
-	defer func() {
-		if r := recover(); r != nil {
-			fmt.Printf(orderf.path, word, "RealPush 2228", r)
-			fmt.Println(runtime.Caller(0))
-			panic(r)
-		}
-	}()
 	if !orderf.isopen {
 		return false
 	}
@@ -3890,19 +3839,12 @@ func (orderf *OrderFile) RmKey(key []byte) bool {
 		orderf.markrmpushfile.Write(key)
 	}
 
-	orderf.RealRm(BytesCombine(key, orderf.fixkeyendbt))
+	brm := orderf.RealRm(BytesCombine(key, orderf.fixkeyendbt))
 	orderf.markmu.Unlock()
-	return true
+	return brm
 }
 
 func (orderf *OrderFile) RealRm(key []byte) bool {
-	defer func() {
-		if r := recover(); r != nil {
-			fmt.Printf(orderf.path, key, "RealRm 2475", r)
-			fmt.Println(runtime.Caller(0))
-			panic(r)
-		}
-	}()
 	if !orderf.isopen {
 		return false
 	}
@@ -4650,12 +4592,6 @@ func (orderf *OrderFile) nextNextKey(boat, sentence []byte, sentencecuri int) (f
 }
 
 func (orderf *OrderFile) NextKey(curkey []byte) (nextkey []byte, bnext bool) {
-	defer func() {
-		if r := recover(); r != nil {
-			fmt.Printf(orderf.path, curkey, "NextKey error 3648")
-			panic(r)
-		}
-	}()
 	if !orderf.isopen {
 		return []byte{}, false
 	}
@@ -4881,12 +4817,6 @@ func (orderf *OrderFile) nextPreviousKey(boat, sentence []byte, sentencecuri int
 
 //if previous value for delete,should use RealRm function
 func (orderf *OrderFile) PreviousKey(curkey []byte) (previouskey []byte, bprevious bool) {
-	defer func() {
-		if r := recover(); r != nil {
-			fmt.Printf(orderf.path, curkey, "PreviousKey error 3648")
-			panic(r)
-		}
-	}()
 	if !orderf.isopen {
 		return []byte{}, false
 	}
@@ -4982,13 +4912,6 @@ func (orderf *OrderFile) RealRmPush(key, value []byte) bool {
 	//orderf.ErrorRecord("RP", key, value)
 	rootboatoffset := binary.BigEndian.Uint64(append([]byte{0, 0}, orderf.shorttable[0:6]...))
 	rootboat := orderf.readFullBoatNoZip(rootboatoffset >> 1)
-	defer func() {
-		if r := recover(); r != nil {
-			fmt.Printf(orderf.path, key, value, rootboat, rootboatoffset>>1, "RealRmPush 3846", r)
-			fmt.Println(runtime.Caller(0))
-			panic(r)
-		}
-	}()
 	rootboattype := rootboatoffset & 1
 	if rootboattype == 0 {
 		if len(key) > 0 {
