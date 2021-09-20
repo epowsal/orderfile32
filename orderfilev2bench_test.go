@@ -1,5 +1,5 @@
 // orderfile32 project main.go
-package orderfilemem
+package orderfile32
 
 import (
 	"bytes"

@@ -29,8 +29,6 @@ import (
 	"github.com/ulikunitz/xz"
 )
 
-var serialfmap sync.Map
-
 type OrderFile struct {
 	path              string
 	shorttable        []byte
@@ -102,7 +100,6 @@ const (
 	CompressType_Flate
 )
 
-//db 6th byte is the compress type. defautl flush interval 2 minute.
 func OpenOrderFile(path string, compresstype int, fixkeylength int, fixkeyendbyte []byte) (*OrderFile, error) {
 	path = orderfiletool.StdPath(path)
 	orderf := &OrderFile{path: path, cellsize: 4096, compresstype: compresstype}
@@ -120,34 +117,19 @@ func SetDebug() {
 
 var forbidReopenMap sync.Map
 
-//default open with 5GB log file max size.kv max db size is 32GB.max value size about 128KB.
-//if open exists orderfile. the option compresstype and fixkeylength and fixkeyendbyte will ignore.
 func (orderf *OrderFile) open(path string, compresstype int, fixkeylength int, fixkeyendbyte []byte) error {
-	//orderf.Close()
-
 	orderf.compresstype = compresstype
 	orderf.fixkeylen = fixkeylength
 	orderf.fixkeyendbt = fixkeyendbyte
 	orderf.version = 48
 
 	abspath := orderfiletool.StdUnixLikePath(orderfiletool.ToAbsolutePath(orderf.path))
-	// testlogf, _ := os.OpenFile("testlog"+strconv.FormatInt(time.Now().Unix(), 10)+"-"+strconv.FormatInt(rand.Int63(), 10)+".txt", os.O_CREATE|os.O_WRONLY, 0666)
-	// testlogf.Write([]byte(abspath + "\n"))
-	// buf := make([]byte, 1<<21)
-	// bufn := runtime.Stack(buf, true)
-	// if bufn >= 0 {
-	// 	buf = buf[:bufn]
-	// 	testlogf.Write(buf)
-	// }
-	// buf = []byte{}
-	// testlogf.Close()
 	orderf.flockid = filelock.Lock(abspath)
 	if orderf.flockid <= 0 {
 		return errors.New("lock database error")
 	}
 	_, beopened := forbidReopenMap.LoadOrStore(abspath, 1)
 	if allowmultiopenfortest == false && beopened {
-		//panic(abspath + " have been open by other process.")
 		return errors.New(abspath + " was opened by other process.")
 	}
 	orderf.pathlockid = abspath
@@ -201,7 +183,6 @@ func (orderf *OrderFile) open(path string, compresstype int, fixkeylength int, f
 	_, corfstateerror := os.Stat(path + ".beopen")
 	if corfstateerror == nil {
 		fmt.Println(path + ":maybe did not correct close. remove the .beopen file can to recover it.")
-		//panic(path + ":maybe did not correct close. remove the .beopen file can to recover it.")
 		if allowmultiopenfortest {
 			Backup(path)
 		}
@@ -368,7 +349,7 @@ func (orderf *OrderFile) open(path string, compresstype int, fixkeylength int, f
 	orderf.autoflush = true
 	orderf.enablermpushlog = true
 	orderf.lastcompleteorderset = make([]uint32, 0, 1024)
-	orderf.markrmpushfilemaxsize = 5 * 1024 * 1024 * 1024
+	orderf.markrmpushfilemaxsize = 1<<32 - 64*1024*1024
 
 	//find recover data deal
 	_, rmpushtemper := os.Stat(orderf.path + ".rmpushtempok")
@@ -837,66 +818,10 @@ func (orderf *OrderFile) open(path string, compresstype int, fixkeylength int, f
 	}
 
 	orderfiletool.WriteFile(path+".beopen", []byte{})
-	//orderf.ErrorRecord("O", []byte(orderf.path), nil)
 
 	orderf.fileendwritebuf = []byte{}
 	go BlockFlush(orderf)
 	return nil
-}
-func (orderf *OrderFile) printSortTable() {
-	for i := uint32(0); i < orderf.datablockcnt; i++ {
-		os, ol, dp, dl, _ := getBlockPos(orderf.shorttable[24+i*11 : 24+i*11+2*11])
-		fmt.Println(i, os, ol, dp, dl, orderf.shorttable[24+i*11:24+i*11+2*11])
-	}
-}
-
-func (orderf *OrderFile) ErrorRecord(str string, data []byte, data2 []byte) {
-	// if strings.Index(orderf.path, "/kkkkdfdsf/") != -1 {
-	// 	return
-	// }
-	// var serialf *os.File
-	// serialf2, blodk := serialfmap.Load(orderf.path + "_err.log")
-	// if !blodk {
-	// 	_, errr := os.Stat(orderf.path + "_err.log")
-	// 	if errr == nil {
-	// 		serialf, _ = os.OpenFile(orderf.path+"_err.log", os.O_RDWR, 0666)
-	// 		serialf.Seek(0, os.SEEK_END)
-	// 	} else {
-	// 		serialf, _ = os.Create(orderf.path + "_err.log")
-	// 	}
-	// 	serialfmap.Store(orderf.path+"_err.log", serialf)
-	// } else {
-	// 	serialf = serialf2.(*os.File)
-	// }
-	// serialf.Write([]byte(str))
-	//} else {
-	var serialf *os.File
-	serialf2, blodk := serialfmap.Load(orderf.path + "_err.log")
-	if !blodk {
-		_, errr := os.Stat(orderf.path + "_err.log")
-		if errr == nil {
-			serialf, _ = os.OpenFile(orderf.path+"_err.log", os.O_RDWR, 0666)
-			serialf.Seek(0, os.SEEK_END)
-		} else {
-			serialf, _ = os.Create(orderf.path + "_err.log")
-		}
-		serialfmap.Store(orderf.path+"_err.log", serialf)
-	} else {
-		serialf = serialf2.(*os.File)
-	}
-	//serialf.Write([]byte(str + " " + string(data) + "\n"))
-
-	serialf.Write([]byte(str))
-	datalenbt := make([]byte, 4)
-	binary.BigEndian.PutUint32(datalenbt, uint32(len(data)))
-	serialf.Write(datalenbt)
-	serialf.Write(data)
-	if data2 != nil {
-		datalenbt := make([]byte, 4)
-		binary.BigEndian.PutUint32(datalenbt, uint32(len(data2)))
-		serialf.Write(datalenbt)
-		serialf.Write(data2)
-	}
 }
 
 func (orderf *OrderFile) setValTouch(data []byte, oldval uint64, bmod bool) []byte {
@@ -1028,9 +953,10 @@ func MapUnserializeV2(mdatastr []byte) sync.Map {
 	for uint32(startpos)+8 <= uint32(len(mdatastr)) {
 		key = binary.BigEndian.Uint32(mdatastr[startpos : startpos+4])
 		vallen = binary.BigEndian.Uint32(mdatastr[startpos+4 : startpos+4+4])
-		mdata.Store(int(key), string(mdatastr[startpos+4+4:startpos+4+4+vallen]))
-		startpos += 4 + 4 + vallen
-		if startpos >= uint32(len(mdatastr)) {
+		if startpos+4+4+vallen < uint32(len(mdatastr)) {
+			mdata.Store(int(key), string(mdatastr[startpos+4+4:startpos+4+4+vallen]))
+			startpos += 4 + 4 + vallen
+		} else {
 			break
 		}
 	}
@@ -1076,9 +1002,10 @@ func BytesToMapIntBytes(mdatastr []byte) sync.Map {
 	for uint32(startpos)+8 <= uint32(len(mdatastr)) {
 		key = binary.BigEndian.Uint32(mdatastr[startpos : startpos+4])
 		vallen = binary.BigEndian.Uint32(mdatastr[startpos+4 : startpos+4+4])
-		mdata.Store(uint32(key), BytesClone(mdatastr[startpos+4+4:startpos+4+4+vallen]))
-		startpos += 4 + 4 + vallen
-		if startpos >= uint32(len(mdatastr)) {
+		if startpos+4+4+vallen < uint32(len(mdatastr)) {
+			mdata.Store(uint32(key), BytesClone(mdatastr[startpos+4+4:startpos+4+4+vallen]))
+			startpos += 4 + 4 + vallen
+		} else {
 			break
 		}
 	}
@@ -1091,9 +1018,10 @@ func BytesToMapU32Bytes(mdatastr []byte) (mdata map[uint32][]byte) {
 	for uint32(startpos)+8 <= uint32(len(mdatastr)) {
 		key = binary.BigEndian.Uint32(mdatastr[startpos : startpos+4])
 		vallen = binary.BigEndian.Uint32(mdatastr[startpos+4 : startpos+4+4])
-		mdata[uint32(key)] = BytesClone(mdatastr[startpos+4+4 : startpos+4+4+vallen])
-		startpos += 4 + 4 + vallen
-		if startpos >= uint32(len(mdatastr)) {
+		if startpos+4+4+vallen <= uint32(len(mdatastr)) {
+			mdata[uint32(key)] = BytesClone(mdatastr[startpos+4+4 : startpos+4+4+vallen])
+			startpos += 4 + 4 + vallen
+		} else {
 			break
 		}
 	}
@@ -1269,7 +1197,7 @@ func BlockFlush(orderf *OrderFile) {
 		orderf.markmu.Lock()
 		markrmpushfilepos, markrmpushfileerr := orderf.markrmpushfile.Seek(0, os.SEEK_CUR)
 		orderf.markmu.Unlock()
-		if orderf.prepareflush && pushmapempty || orderf.autoflush == true && (orderf.isflushnow || sysidlemem.GetSysIdleMem() < orderf.sysminidlemem && time.Now().Unix()-orderf.presynctime > orderf.idlememflushinterval || time.Now().Unix()-orderf.presynctime > orderf.autoflushinterval) || markrmpushfileerr == nil && markrmpushfilepos > orderf.markrmpushfilemaxsize {
+		if orderf.prepareflush && pushmapempty || orderf.autoflush == true && (orderf.isflushnow || sysidlemem.GetSysIdleMem() < orderf.sysminidlemem && time.Now().Unix()-orderf.presynctime > orderf.idlememflushinterval || time.Now().Unix()-orderf.presynctime > orderf.autoflushinterval) || markrmpushfileerr == nil && markrmpushfilepos >= orderf.markrmpushfilemaxsize {
 			bmemreach := false
 			if sysidlemem.GetSysIdleMem() < orderf.sysminidlemem {
 				bmemreach = true
@@ -1281,7 +1209,6 @@ func BlockFlush(orderf *OrderFile) {
 					panic(orderf.path + " Maybe RealPush have error.")
 				}
 				orderf.fileendwritebuf = make([]byte, orderf.fileendwritebufsize+1024)
-				//orderf.ErrorRecord("F", []byte{}, nil)
 				orderf.markmu.Lock()
 				os.Remove(orderf.path + ".headsaveok")
 				orderf.markrmpushfile.Sync()
@@ -1639,7 +1566,7 @@ func BlockFlush(orderf *OrderFile) {
 						atomic.AddInt64(&orderf.toatalreusecount, -int64(cntval))
 						atomic.AddInt64(&orderf.totalcachecount, -1)
 						orderf.readfullboatmu.Lock()
-						orderf.cachemap.Delete(key)
+						orderf.cachemap.Delete(key.(uint32))
 						orderf.readfullboatmu.Unlock()
 					}
 					startusecnt -= 1
@@ -2109,14 +2036,12 @@ func (orderf *OrderFile) Close() bool {
 	if !orderf.isopen {
 		return false
 	}
-	//orderf.ErrorRecord("C", []byte(orderf.path), nil)
-	//fmt.Println(orderf.path, "close 1")
 	orderf.autoflush = true
 	orderf.isflushnow = true
 	orderf.isquit = true
 	<-orderf.flushnowch
 	orderf.cachemap.Range(func(key, val interface{}) bool {
-		orderf.cachemap.Delete(key)
+		orderf.cachemap.Delete(key.(uint32))
 		return true
 	})
 	// orderf.markrmmap.Range(func(key, val interface{}) bool {
@@ -2359,7 +2284,6 @@ func (orderf *OrderFile) writeLastBlockNoZip(boat []byte) uint64 {
 				ucelldata = BytesClone(ucelldata)
 			}
 			if len(ucelldata) == 0 {
-				orderf.printSortTable()
 				fmt.Println("blockind,orderstart,orderlen,datapos,dataposlen", orderf.lastblockind, orderstart, orderlen, datapos, dataposlen, celldata, ucelldata)
 				panic(orderf.path + ":length error 1336.")
 			}
@@ -2545,7 +2469,7 @@ func (orderf *OrderFile) writeOldBoatNoZip(boatoffset, oldboatlen uint64, boat [
 				orderf.shorttable[24+(blockind+1)*11+curnexti] = 0
 			}
 			orderf.lastblockorderend = orderstart2 + orderlen2
-			orderf.cachemap.Delete(orderstart)
+			orderf.cachemap.Delete(uint32(orderstart))
 			if dataposlen > 0 {
 				dataposbt := make([]byte, 8)
 				binary.BigEndian.PutUint64(dataposbt, datapos)
@@ -3148,15 +3072,13 @@ func (orderf *OrderFile) nextPushValue3(val3u32 uint64, word []byte, wordcuri in
 	var wordlastmemfirstchar byte
 	if wordlastcnt > 0 {
 		if wordlastcnt > 5 {
+			fixkeylen := orderf.fixkeylen
 			if orderf.fixkeyendbt != nil {
-				orderf.fixkeylen = bytes.Index(word, orderf.fixkeyendbt)
-				if orderf.fixkeylen == -1 {
-					orderf.fixkeylen = 0
-				} else {
-					orderf.fixkeylen += len(orderf.fixkeyendbt)
+				if bytes.Index(word, orderf.fixkeyendbt) != -1 {
+					fixkeylen = len(orderf.fixkeyendbt)
 				}
 			}
-			wordlastmem, _ := orderf.buildLastWordMem(word, wordcuri+matchcnt, orderf.fixkeylen-wordcuri+matchcnt)
+			wordlastmem, _ := orderf.buildLastWordMem(word, wordcuri+matchcnt, fixkeylen-wordcuri+matchcnt)
 			var wordlastboatoffset uint64
 			wordlastboatoffset = orderf.writeLastBlockNoZip(wordlastmem)
 			//check4Zero(wordlastmem)
@@ -3294,15 +3216,13 @@ func (orderf *OrderFile) nextPushKey(boatoffset uint64, word []byte, wordcuri in
 			var wordlastmemid uint64
 			if wordlastcnt > 5 {
 				wordfirstchar := word[wordcuri]
+				fixkeylen := orderf.fixkeylen
 				if orderf.fixkeyendbt != nil {
-					orderf.fixkeylen = bytes.Index(word, orderf.fixkeyendbt)
-					if orderf.fixkeylen == -1 {
-						orderf.fixkeylen = 0
-					} else {
-						orderf.fixkeylen += len(orderf.fixkeyendbt)
+					if bytes.Index(word, orderf.fixkeyendbt) != -1 {
+						fixkeylen = len(orderf.fixkeyendbt)
 					}
 				}
-				wordlastmem, _ := orderf.buildLastWordMem(word, wordcuri, orderf.fixkeylen-wordcuri)
+				wordlastmem, _ := orderf.buildLastWordMem(word, wordcuri, fixkeylen-wordcuri)
 				var wordlastboatoffset uint64
 				wordlastboatoffset = orderf.writeLastBlockNoZip(wordlastmem)
 				//check4Zero(wordlastmem)
@@ -3389,15 +3309,13 @@ func (orderf *OrderFile) nextPushKey(boatoffset uint64, word []byte, wordcuri in
 			if wordnewcnt > 0 {
 				if wordnewcnt > 5 {
 					wordboatnextfirstchar = word[wordcuri]
+					fixkeylen := orderf.fixkeylen
 					if orderf.fixkeyendbt != nil {
-						orderf.fixkeylen = bytes.Index(word, orderf.fixkeyendbt)
-						if orderf.fixkeylen == -1 {
-							orderf.fixkeylen = 0
-						} else {
-							orderf.fixkeylen += len(orderf.fixkeyendbt)
+						if bytes.Index(word, orderf.fixkeyendbt) != -1 {
+							fixkeylen = len(orderf.fixkeyendbt)
 						}
 					}
-					wordboatnext, _ := orderf.buildLastWordMem(word, wordcuri, orderf.fixkeylen-wordcuri)
+					wordboatnext, _ := orderf.buildLastWordMem(word, wordcuri, fixkeylen-wordcuri)
 					wordboatnextid = uint64(orderf.writeLastBlockNoZip(wordboatnext))
 					wordboatnextid = uint64(wordboatnextfirstchar)<<40 | uint64(wordboatnextid)<<1 | 0
 					//fmt.Println(orderf.path,"wordboatnext", len(wordboatnext), wordboatnext)
@@ -3641,15 +3559,13 @@ func (orderf *OrderFile) RealPush(word []byte) bool {
 					//fmt.Println(orderf.path,"boatbt", boatbt)
 					foundpos, mofpos, mofcmpval = orderf.quickFindBuf(boatbt[boatbtcharlen+boatbtcharoffset+1:], word, 0)
 				}
+				fixkeylen := orderf.fixkeylen
 				if orderf.fixkeyendbt != nil {
-					orderf.fixkeylen = bytes.Index(word, orderf.fixkeyendbt)
-					if orderf.fixkeylen == -1 {
-						orderf.fixkeylen = 0
-					} else {
-						orderf.fixkeylen += len(orderf.fixkeyendbt)
+					if bytes.Index(word, orderf.fixkeyendbt) != -1 {
+						fixkeylen = len(orderf.fixkeyendbt)
 					}
 				}
-				wordlastmem, _ := orderf.buildLastWordMem(word, 0, orderf.fixkeylen-0)
+				wordlastmem, _ := orderf.buildLastWordMem(word, 0, fixkeylen-0)
 				var wordlastmemid uint64
 				wordlastmemid = uint64(orderf.writeLastBlockNoZip(wordlastmem))
 				//check4Zero(wordlastmem)
@@ -3851,8 +3767,6 @@ func (orderf *OrderFile) RealRm(key []byte) bool {
 
 	//fmt.Println(orderf.path, "filev2buf RmKey:", key)
 	orderf.ordermu.Lock()
-	//orderf.ErrorRecord("R", key, nil)
-
 	rootboatoffset := binary.BigEndian.Uint64(append([]byte{0, 0}, orderf.shorttable[0:6]...))
 	rootboat := orderf.readFullBoatNoZip(rootboatoffset >> 1)
 	rootboattype := rootboatoffset & 1
@@ -4909,7 +4823,6 @@ func (orderf *OrderFile) RealRmPush(key, value []byte) bool {
 	}
 
 	orderf.ordermu.Lock()
-	//orderf.ErrorRecord("RP", key, value)
 	rootboatoffset := binary.BigEndian.Uint64(append([]byte{0, 0}, orderf.shorttable[0:6]...))
 	rootboat := orderf.readFullBoatNoZip(rootboatoffset >> 1)
 	rootboattype := rootboatoffset & 1
@@ -5012,15 +4925,13 @@ func (orderf *OrderFile) RealRmPush(key, value []byte) bool {
 					//fmt.Println(orderf.path,"boatbt", boatbt)
 					foundpos, mofpos, mofcmpval = orderf.quickFindBuf(boatbt[boatbtcharlen+boatbtcharoffset+1:], keyval, 0)
 				}
+				fixkeylen := orderf.fixkeylen
 				if orderf.fixkeyendbt != nil {
-					orderf.fixkeylen = bytes.Index(keyval, orderf.fixkeyendbt)
-					if orderf.fixkeylen == -1 {
-						orderf.fixkeylen = 0
-					} else {
-						orderf.fixkeylen += len(orderf.fixkeyendbt)
+					if bytes.Index(keyval, orderf.fixkeyendbt) != -1 {
+						fixkeylen = len(orderf.fixkeyendbt)
 					}
 				}
-				wordlastmem, _ := orderf.buildLastWordMem(keyval, 0, orderf.fixkeylen-0)
+				wordlastmem, _ := orderf.buildLastWordMem(keyval, 0, fixkeylen-0)
 				var wordlastmemid uint64
 				wordlastmemid = uint64(orderf.writeLastBlockNoZip(wordlastmem))
 				//check4Zero(wordlastmem)

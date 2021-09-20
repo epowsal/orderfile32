@@ -1,4 +1,4 @@
-package orderfilemem
+package orderfile32
 
 import (
 	"bufio"
