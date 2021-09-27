@@ -57,9 +57,6 @@ type OrderFile struct {
 	bstatblockspace          bool
 	brecordzeroboat          bool
 	CompressAndSavewg        sync.WaitGroup
-	totalsize                int64
-	totalsizelasttime        int64
-	extranbuf                []byte
 	totalcount               int64
 	bhavenewwrite            bool
 	sysminidlemem            int64
@@ -78,7 +75,6 @@ type OrderFile struct {
 	autoflush             bool
 	readfullboatmu        sync.Mutex
 	spacelen_pos          map[uint32][]byte
-	pathlockid            string
 	enablermpushlog       bool
 	compresstype          int
 	lastcompleteorderset  []uint32
@@ -90,6 +86,7 @@ type OrderFile struct {
 	markrmpushfilemaxsize int64
 	flockid               int64
 	version               int32
+	FreeReserveMax        float32
 }
 
 const (
@@ -110,14 +107,10 @@ func OpenOrderFile(path string, compresstype int, fixkeylength int, fixkeyendbyt
 	return orderf, nil
 }
 
-var allowmultiopenfortest bool = false //for test crash recover
-func SetDebug() {
-	allowmultiopenfortest = true
-}
-
-var forbidReopenMap sync.Map
-
 func (orderf *OrderFile) open(path string, compresstype int, fixkeylength int, fixkeyendbyte []byte) error {
+	if fixkeylength > 0 && len(fixkeyendbyte) > 0 {
+		return errors.New("parameter error.")
+	}
 	orderf.compresstype = compresstype
 	orderf.fixkeylen = fixkeylength
 	orderf.fixkeyendbt = fixkeyendbyte
@@ -128,14 +121,7 @@ func (orderf *OrderFile) open(path string, compresstype int, fixkeylength int, f
 	if orderf.flockid <= 0 {
 		return errors.New("lock database error")
 	}
-	_, beopened := forbidReopenMap.LoadOrStore(abspath, 1)
-	if allowmultiopenfortest == false && beopened {
-		return errors.New(abspath + " was opened by other process.")
-	}
-	orderf.pathlockid = abspath
-	if allowmultiopenfortest {
-		forbidReopenMap.Delete(orderf.pathlockid)
-		orderf.pathlockid = ""
+	if false {
 		filelock.Unlock(orderf.flockid)
 	}
 	_, rmpushe := os.Stat(orderf.path + ".rmpush")
@@ -153,7 +139,6 @@ func (orderf *OrderFile) open(path string, compresstype int, fixkeylength int, f
 	if opterr == nil {
 		ctt, ctte := orderfiletool.ReadFile(path + ".opt")
 		if ctte != nil {
-			forbidReopenMap.Delete(orderf.pathlockid)
 			filelock.Unlock(orderf.flockid)
 			return errors.New("read option file error")
 		}
@@ -161,7 +146,6 @@ func (orderf *OrderFile) open(path string, compresstype int, fixkeylength int, f
 		orderf.fixkeylen = int(binary.BigEndian.Uint32(ctt[8:12]))
 		dbversion := int32(binary.BigEndian.Uint32(ctt[12:16]))
 		if dbversion != orderf.version {
-			forbidReopenMap.Delete(orderf.pathlockid)
 			filelock.Unlock(orderf.flockid)
 			return errors.New("database version not support. this database version is " + strconv.Itoa(int(dbversion)) + ". support version is " + strconv.Itoa(int(orderf.version)) + ". ")
 		}
@@ -183,7 +167,7 @@ func (orderf *OrderFile) open(path string, compresstype int, fixkeylength int, f
 	_, corfstateerror := os.Stat(path + ".beopen")
 	if corfstateerror == nil {
 		fmt.Println(path + ":maybe did not correct close. remove the .beopen file can to recover it.")
-		if allowmultiopenfortest {
+		if false {
 			Backup(path)
 		}
 	}
@@ -196,12 +180,10 @@ func (orderf *OrderFile) open(path string, compresstype int, fixkeylength int, f
 	rand.Seed(time.Now().UnixNano())
 	orderf.releasespacels = make(map[uint32][]byte, 0)
 	orderf.spacelen_pos = make(map[uint32][]byte, 0)
-	orderf.extranbuf = make([]byte, 5*(1<<17))
 	var pathfile *os.File
 	var err, fexistserr error
 	fi, fexistserr := os.Stat(path)
 	if fexistserr == nil && fi.IsDir() {
-		forbidReopenMap.Delete(orderf.pathlockid)
 		filelock.Unlock(orderf.flockid)
 		return errors.New("database is directory already exists. open database error.")
 	}
@@ -209,14 +191,12 @@ func (orderf *OrderFile) open(path string, compresstype int, fixkeylength int, f
 	if fexistserr != nil {
 		pathfile, err = os.Create(path)
 		if err != nil {
-			forbidReopenMap.Delete(orderf.pathlockid)
 			filelock.Unlock(orderf.flockid)
 			return errors.New("database file create error.")
 		}
 	} else {
 		pathfile, err = os.OpenFile(path, os.O_RDWR, 0666)
 		if err != nil {
-			forbidReopenMap.Delete(orderf.pathlockid)
 			filelock.Unlock(orderf.flockid)
 			return errors.New("database file open error.")
 		}
@@ -336,8 +316,6 @@ func (orderf *OrderFile) open(path string, compresstype int, fixkeylength int, f
 	orderf.flushnowch = make(chan uint8, 0)
 	orderf.isflushnow = false
 	orderf.istimeoutsync = false
-	orderf.totalsize = 0
-	orderf.totalsizelasttime = 0
 	orderf.presynctime = time.Now().Unix()
 	orderf.idlememflushinterval = 30
 	orderf.markmu = &sync.RWMutex{}
@@ -350,6 +328,7 @@ func (orderf *OrderFile) open(path string, compresstype int, fixkeylength int, f
 	orderf.enablermpushlog = true
 	orderf.lastcompleteorderset = make([]uint32, 0, 1024)
 	orderf.markrmpushfilemaxsize = 1<<32 - 64*1024*1024
+	orderf.FreeReserveMax = 2048
 
 	//find recover data deal
 	_, rmpushtemper := os.Stat(orderf.path + ".rmpushtempok")
@@ -805,7 +784,6 @@ func (orderf *OrderFile) open(path string, compresstype int, fixkeylength int, f
 	endposbt := make([]byte, 9)
 	orderf.pathfile.Read(endposbt[3:])
 	if int(endposbt[8]) != orderf.compresstype {
-		forbidReopenMap.Delete(orderf.pathlockid)
 		filelock.Unlock(orderf.flockid)
 		return errors.New("database compress type error.")
 	}
@@ -819,7 +797,7 @@ func (orderf *OrderFile) open(path string, compresstype int, fixkeylength int, f
 
 	orderfiletool.WriteFile(path+".beopen", []byte{})
 
-	orderf.fileendwritebuf = []byte{}
+	orderf.fileendwritebuf = nil
 	go BlockFlush(orderf)
 	return nil
 }
@@ -865,15 +843,15 @@ func (orderf *OrderFile) setNewFileData() {
 	orderf.totalcount = 0
 	var lastblockbt []byte
 	if orderf.compresstype == 0 {
-		lastblockbt = ZipEncode(orderf.extranbuf, []byte{0}, 1)
+		lastblockbt = ZipEncode(nil, []byte{0}, 1)
 	} else if orderf.compresstype == 1 {
-		lastblockbt = SnappyEncode(orderf.extranbuf, []byte{0})
+		lastblockbt = SnappyEncode(nil, []byte{0})
 	} else if orderf.compresstype == 2 {
-		lastblockbt = Lz4Encode(orderf.extranbuf, []byte{0})
+		lastblockbt = Lz4Encode(nil, []byte{0})
 	} else if orderf.compresstype == 3 {
-		lastblockbt = XzEncode(orderf.extranbuf, []byte{0})
+		lastblockbt = XzEncode(nil, []byte{0})
 	} else if orderf.compresstype == 4 {
-		lastblockbt = FlateEncode(orderf.extranbuf, []byte{0}, 1)
+		lastblockbt = FlateEncode(nil, []byte{0}, 1)
 	}
 	binary.BigEndian.PutUint32(orderf.shorttable[6:10], uint32(orderf.datablockcnt))
 	binary.BigEndian.PutUint32(orderf.shorttable[10:14], orderf.lastblockind)
@@ -1069,10 +1047,12 @@ func CompressAndSave(orderf *OrderFile, segindinfo chan uint32, newsavedataf *os
 					dataposbt := make([]byte, 8)
 					binary.BigEndian.PutUint64(dataposbt, datapos)
 					startposlist, bstartposlist := orderf.spacelen_pos[uint32(dataposlen)]
-					if bstartposlist {
-						orderf.spacelen_pos[uint32(dataposlen)] = append(startposlist, dataposbt[3:]...)
-					} else {
-						orderf.spacelen_pos[uint32(dataposlen)] = dataposbt[3:]
+					if orderf.FreeReserveMax == 1 || bstartposlist == false || bstartposlist && orderf.FreeReserveMax >= 2 && len(startposlist) < int(orderf.FreeReserveMax*5) {
+						if bstartposlist {
+							orderf.spacelen_pos[uint32(dataposlen)] = append(startposlist, dataposbt[3:]...)
+						} else {
+							orderf.spacelen_pos[uint32(dataposlen)] = dataposbt[3:]
+						}
 					}
 					isreleaseoldfilespace = true
 				}
@@ -1535,7 +1515,7 @@ func BlockFlush(orderf *OrderFile) {
 				//if orderf.prepareflush != true {
 				//	exec.Command("sync")
 				//}
-				orderf.fileendwritebuf = []byte{}
+				orderf.fileendwritebuf = nil
 				orderf.lastcompleteorderset = orderf.lastcompleteorderset[:0]
 				orderf.lastblockendpos = orderf.fakelastblockendpos
 				orderf.bhavenewwrite = false
@@ -1820,10 +1800,12 @@ func BlockFlush(orderf *OrderFile) {
 										dataposbt := make([]byte, 8)
 										binary.BigEndian.PutUint64(dataposbt, datapos)
 										startposlist, bstartposlist := orderf.spacelen_pos[uint32(dataposlen)]
-										if bstartposlist {
-											orderf.spacelen_pos[uint32(dataposlen)] = append(startposlist, dataposbt[1:]...)
-										} else {
-											orderf.spacelen_pos[uint32(dataposlen)] = dataposbt[1:]
+										if orderf.FreeReserveMax == 1 || bstartposlist == false || bstartposlist && orderf.FreeReserveMax >= 2 && len(startposlist) < int(orderf.FreeReserveMax*5) {
+											if bstartposlist {
+												orderf.spacelen_pos[uint32(dataposlen)] = append(startposlist, dataposbt[1:]...)
+											} else {
+												orderf.spacelen_pos[uint32(dataposlen)] = dataposbt[1:]
+											}
 										}
 									}
 									writepos = orderf.fakelastblockendpos
@@ -2011,9 +1993,6 @@ func DBCompress(orderdbpath string, replaceoldfile bool, tailspace int) bool {
 }
 
 func (orderf *OrderFile) Split(splitcnt, splittype int) bool {
-	if !orderf.isopen {
-		return false
-	}
 	orderf.splitcnt = splitcnt
 	orderf.splittype = splittype
 	orderf.isflushnow = true
@@ -2023,9 +2002,6 @@ func (orderf *OrderFile) Split(splitcnt, splittype int) bool {
 }
 
 func (orderf *OrderFile) Flush() bool {
-	if !orderf.isopen {
-		return false
-	}
 	orderf.isflushnow = true
 	<-orderf.flushnowch
 	orderf.isflushnow = false
@@ -2033,17 +2009,11 @@ func (orderf *OrderFile) Flush() bool {
 }
 
 func (orderf *OrderFile) Close() bool {
-	if !orderf.isopen {
-		return false
-	}
 	orderf.autoflush = true
 	orderf.isflushnow = true
 	orderf.isquit = true
 	<-orderf.flushnowch
-	orderf.cachemap.Range(func(key, val interface{}) bool {
-		orderf.cachemap.Delete(key.(uint32))
-		return true
-	})
+	orderf.cachemap = sync.Map{}
 	// orderf.markrmmap.Range(func(key, val interface{}) bool {
 	// 	orderf.markrmmap.Delete(key)
 	// 	return true
@@ -2056,19 +2026,12 @@ func (orderf *OrderFile) Close() bool {
 	// 	orderf.markpushmap.Delete(key)
 	// 	return true
 	// })
-	for key, _ := range orderf.releasespacels {
-		delete(orderf.releasespacels, key)
-	}
-	for key, _ := range orderf.spacelen_pos {
-		delete(orderf.spacelen_pos, key)
-	}
+	orderf.releasespacels = nil
+	orderf.spacelen_pos = nil
 	orderf.shorttable = []byte{}
-	orderf.extranbuf = []byte{}
 	os.Remove(orderf.path + ".beopen")
 	orderf.markrmpushfile.Close()
 	orderf.pathfile.Close()
-	forbidReopenMap.Delete(orderf.pathlockid)
-	orderf.pathlockid = ""
 	filelock.Unlock(orderf.flockid)
 	orderf.flockid = 0
 
@@ -2128,19 +2091,19 @@ func (orderf *OrderFile) readFullBoatNoZip(boatoffsetid uint64) []byte {
 			panic(orderf.path + ":readFullBoatNoZip read error 1203.")
 		}
 		if orderf.compresstype == 0 {
-			ucelldata = ZipDecode(orderf.extranbuf, celldata)
+			ucelldata = ZipDecode(nil, celldata)
 			ucelldata = BytesClone(ucelldata)
 		} else if orderf.compresstype == 1 {
-			ucelldata = SnappyDecode(orderf.extranbuf, celldata)
+			ucelldata = SnappyDecode(nil, celldata)
 			ucelldata = BytesClone(ucelldata)
 		} else if orderf.compresstype == 2 {
-			ucelldata = Lz4Decode(orderf.extranbuf, celldata)
+			ucelldata = Lz4Decode(nil, celldata)
 			ucelldata = BytesClone(ucelldata)
 		} else if orderf.compresstype == 3 {
-			ucelldata = XzDecode(orderf.extranbuf, celldata)
+			ucelldata = XzDecode(nil, celldata)
 			ucelldata = BytesClone(ucelldata)
 		} else if orderf.compresstype == 4 {
-			ucelldata = FlateDecode(orderf.extranbuf, celldata)
+			ucelldata = FlateDecode(nil, celldata)
 			ucelldata = BytesClone(ucelldata)
 		}
 		if len(ucelldata) == 0 || boatoffsetid-orderstart >= uint64(len(ucelldata)) {
@@ -2220,19 +2183,19 @@ func (orderf *OrderFile) writeLastBlockNoZip(boat []byte) uint64 {
 						panic(orderf.path + ":writeLastBlockNoZip read error 1289.")
 					}
 					if orderf.compresstype == 0 {
-						ucelldata = ZipDecode(orderf.extranbuf, celldata)
+						ucelldata = ZipDecode(nil, celldata)
 						ucelldata = BytesClone(ucelldata)
 					} else if orderf.compresstype == 1 {
-						ucelldata = SnappyDecode(orderf.extranbuf, celldata)
+						ucelldata = SnappyDecode(nil, celldata)
 						ucelldata = BytesClone(ucelldata)
 					} else if orderf.compresstype == 2 {
-						ucelldata = Lz4Decode(orderf.extranbuf, celldata)
+						ucelldata = Lz4Decode(nil, celldata)
 						ucelldata = BytesClone(ucelldata)
 					} else if orderf.compresstype == 3 {
-						ucelldata = XzDecode(orderf.extranbuf, celldata)
+						ucelldata = XzDecode(nil, celldata)
 						ucelldata = BytesClone(ucelldata)
 					} else if orderf.compresstype == 4 {
-						ucelldata = FlateDecode(orderf.extranbuf, celldata)
+						ucelldata = FlateDecode(nil, celldata)
 						ucelldata = BytesClone(ucelldata)
 					}
 					if len(ucelldata) == 0 || releaseboatpos-orderstart >= uint64(len(ucelldata)) {
@@ -2268,19 +2231,19 @@ func (orderf *OrderFile) writeLastBlockNoZip(boat []byte) uint64 {
 				panic(orderf.path + ":writeLastBlockNoZip read error 1329.")
 			}
 			if orderf.compresstype == 0 {
-				ucelldata = ZipDecode(orderf.extranbuf, celldata)
+				ucelldata = ZipDecode(nil, celldata)
 				ucelldata = BytesClone(ucelldata)
 			} else if orderf.compresstype == 1 {
-				ucelldata = SnappyDecode(orderf.extranbuf, celldata)
+				ucelldata = SnappyDecode(nil, celldata)
 				ucelldata = BytesClone(ucelldata)
 			} else if orderf.compresstype == 2 {
-				ucelldata = Lz4Decode(orderf.extranbuf, celldata)
+				ucelldata = Lz4Decode(nil, celldata)
 				ucelldata = BytesClone(ucelldata)
 			} else if orderf.compresstype == 3 {
-				ucelldata = XzDecode(orderf.extranbuf, celldata)
+				ucelldata = XzDecode(nil, celldata)
 				ucelldata = BytesClone(ucelldata)
 			} else if orderf.compresstype == 4 {
-				ucelldata = FlateDecode(orderf.extranbuf, celldata)
+				ucelldata = FlateDecode(nil, celldata)
 				ucelldata = BytesClone(ucelldata)
 			}
 			if len(ucelldata) == 0 {
@@ -2378,19 +2341,19 @@ func (orderf *OrderFile) zeroOldBoatNoZip(boatoffsetid, oldboatlen uint64) bool 
 			panic(orderf.path + ":writeLastBlockNoZip read error 1420.")
 		}
 		if orderf.compresstype == 0 {
-			ucelldata = ZipDecode(orderf.extranbuf, celldata)
+			ucelldata = ZipDecode(nil, celldata)
 			ucelldata = BytesClone(ucelldata)
 		} else if orderf.compresstype == 1 {
-			ucelldata = SnappyDecode(orderf.extranbuf, celldata)
+			ucelldata = SnappyDecode(nil, celldata)
 			ucelldata = BytesClone(ucelldata)
 		} else if orderf.compresstype == 2 {
-			ucelldata = Lz4Decode(orderf.extranbuf, celldata)
+			ucelldata = Lz4Decode(nil, celldata)
 			ucelldata = BytesClone(ucelldata)
 		} else if orderf.compresstype == 3 {
-			ucelldata = XzDecode(orderf.extranbuf, celldata)
+			ucelldata = XzDecode(nil, celldata)
 			ucelldata = BytesClone(ucelldata)
 		} else if orderf.compresstype == 4 {
-			ucelldata = FlateDecode(orderf.extranbuf, celldata)
+			ucelldata = FlateDecode(nil, celldata)
 			ucelldata = BytesClone(ucelldata)
 		}
 		if len(ucelldata) == 0 {
@@ -2410,8 +2373,6 @@ func (orderf *OrderFile) zeroOldBoatNoZip(boatoffsetid, oldboatlen uint64) bool 
 	return true
 }
 
-var releasecnt int
-
 func (orderf *OrderFile) writeOldBoatNoZip(boatoffset, oldboatlen uint64, boat []byte) uint64 {
 	blockind := orderf.quickFindOrderInd(boatoffset)
 	orderstart, orderlen, datapos, dataposlen, _ := getBlockPos(orderf.shorttable[24+blockind*11 : 24+blockind*11+2*11])
@@ -2428,19 +2389,19 @@ func (orderf *OrderFile) writeOldBoatNoZip(boatoffset, oldboatlen uint64, boat [
 				panic(orderf.path + ":writeLastBlockNoZip read error 1474.")
 			}
 			if orderf.compresstype == 0 {
-				ucelldata = ZipDecode(orderf.extranbuf, celldata)
+				ucelldata = ZipDecode(nil, celldata)
 				ucelldata = BytesClone(ucelldata)
 			} else if orderf.compresstype == 1 {
-				ucelldata = SnappyDecode(orderf.extranbuf, celldata)
+				ucelldata = SnappyDecode(nil, celldata)
 				ucelldata = BytesClone(ucelldata)
 			} else if orderf.compresstype == 2 {
-				ucelldata = Lz4Decode(orderf.extranbuf, celldata)
+				ucelldata = Lz4Decode(nil, celldata)
 				ucelldata = BytesClone(ucelldata)
 			} else if orderf.compresstype == 3 {
-				ucelldata = XzDecode(orderf.extranbuf, celldata)
+				ucelldata = XzDecode(nil, celldata)
 				ucelldata = BytesClone(ucelldata)
 			} else if orderf.compresstype == 4 {
-				ucelldata = FlateDecode(orderf.extranbuf, celldata)
+				ucelldata = FlateDecode(nil, celldata)
 				ucelldata = BytesClone(ucelldata)
 			}
 			if len(ucelldata) == 0 {
@@ -2474,10 +2435,12 @@ func (orderf *OrderFile) writeOldBoatNoZip(boatoffset, oldboatlen uint64, boat [
 				dataposbt := make([]byte, 8)
 				binary.BigEndian.PutUint64(dataposbt, datapos)
 				startposlist, bstartposlist := orderf.spacelen_pos[uint32(dataposlen)]
-				if bstartposlist {
-					orderf.spacelen_pos[uint32(dataposlen)] = append(startposlist, dataposbt[3:]...)
-				} else {
-					orderf.spacelen_pos[uint32(dataposlen)] = dataposbt[3:]
+				if orderf.FreeReserveMax == 1 || bstartposlist == false || bstartposlist && orderf.FreeReserveMax >= 2 && len(startposlist) < int(orderf.FreeReserveMax*5) {
+					if bstartposlist {
+						orderf.spacelen_pos[uint32(dataposlen)] = append(startposlist, dataposbt[3:]...)
+					} else {
+						orderf.spacelen_pos[uint32(dataposlen)] = dataposbt[3:]
+					}
 				}
 			}
 		} else {
@@ -2495,10 +2458,12 @@ func (orderf *OrderFile) writeOldBoatNoZip(boatoffset, oldboatlen uint64, boat [
 					//fmt.Println(orderf.path,"zerospace:", boatoffset, oldboatlen)
 					spacebt, bspacebt := orderf.releasespacels[uint32(oldboatlen)]
 					//fmt.Println(orderf.path,"spacebt2:", spacebt2, uint32(oldboatlen))
-					if bspacebt {
-						orderf.releasespacels[uint32(oldboatlen)] = append(spacebt, spacebt2[3:]...)
-					} else {
-						orderf.releasespacels[uint32(oldboatlen)] = spacebt2[3:]
+					if orderf.FreeReserveMax == 1 || bspacebt == false || bspacebt && orderf.FreeReserveMax >= 2 && len(spacebt) < int(orderf.FreeReserveMax*5) {
+						if bspacebt {
+							orderf.releasespacels[uint32(oldboatlen)] = append(spacebt, spacebt2[3:]...)
+						} else {
+							orderf.releasespacels[uint32(oldboatlen)] = spacebt2[3:]
+						}
 					}
 				}
 			}
@@ -2515,19 +2480,19 @@ func (orderf *OrderFile) writeOldBoatNoZip(boatoffset, oldboatlen uint64, boat [
 					panic(orderf.path + ":writeLastBlockNoZip read error 1509.")
 				}
 				if orderf.compresstype == 0 {
-					ucelldata = ZipDecode(orderf.extranbuf, celldata)
+					ucelldata = ZipDecode(nil, celldata)
 					ucelldata = BytesClone(ucelldata)
 				} else if orderf.compresstype == 1 {
-					ucelldata = SnappyDecode(orderf.extranbuf, celldata)
+					ucelldata = SnappyDecode(nil, celldata)
 					ucelldata = BytesClone(ucelldata)
 				} else if orderf.compresstype == 2 {
-					ucelldata = Lz4Decode(orderf.extranbuf, celldata)
+					ucelldata = Lz4Decode(nil, celldata)
 					ucelldata = BytesClone(ucelldata)
 				} else if orderf.compresstype == 3 {
-					ucelldata = XzDecode(orderf.extranbuf, celldata)
+					ucelldata = XzDecode(nil, celldata)
 					ucelldata = BytesClone(ucelldata)
 				} else if orderf.compresstype == 4 {
-					ucelldata = FlateDecode(orderf.extranbuf, celldata)
+					ucelldata = FlateDecode(nil, celldata)
 					ucelldata = BytesClone(ucelldata)
 				}
 				if len(ucelldata) == 0 {
@@ -2556,19 +2521,19 @@ func (orderf *OrderFile) writeOldBoatNoZip(boatoffset, oldboatlen uint64, boat [
 					panic(orderf.path + ":writeLastBlockNoZip read error 1420.")
 				}
 				if orderf.compresstype == 0 {
-					ucelldata = ZipDecode(orderf.extranbuf, celldata)
+					ucelldata = ZipDecode(nil, celldata)
 					ucelldata = BytesClone(ucelldata)
 				} else if orderf.compresstype == 1 {
-					ucelldata = SnappyDecode(orderf.extranbuf, celldata)
+					ucelldata = SnappyDecode(nil, celldata)
 					ucelldata = BytesClone(ucelldata)
 				} else if orderf.compresstype == 2 {
-					ucelldata = Lz4Decode(orderf.extranbuf, celldata)
+					ucelldata = Lz4Decode(nil, celldata)
 					ucelldata = BytesClone(ucelldata)
 				} else if orderf.compresstype == 3 {
-					ucelldata = XzDecode(orderf.extranbuf, celldata)
+					ucelldata = XzDecode(nil, celldata)
 					ucelldata = BytesClone(ucelldata)
 				} else if orderf.compresstype == 4 {
-					ucelldata = FlateDecode(orderf.extranbuf, celldata)
+					ucelldata = FlateDecode(nil, celldata)
 					ucelldata = BytesClone(ucelldata)
 				}
 				if len(ucelldata) == 0 {
@@ -2588,10 +2553,12 @@ func (orderf *OrderFile) writeOldBoatNoZip(boatoffset, oldboatlen uint64, boat [
 				//fmt.Println(orderf.path,"zerospace:", boatoffset, oldboatlen)
 				spacebt, bspacebt := orderf.releasespacels[uint32(oldboatlen)]
 				//fmt.Println(orderf.path,"spacebt2:", spacebt2, uint32(oldboatlen))
-				if bspacebt {
-					orderf.releasespacels[uint32(oldboatlen)] = append(spacebt, spacebt2[3:]...)
-				} else {
-					orderf.releasespacels[uint32(oldboatlen)] = spacebt2[3:]
+				if orderf.FreeReserveMax == 1 || bspacebt == false || bspacebt && orderf.FreeReserveMax >= 2 && len(spacebt) < int(orderf.FreeReserveMax*5) {
+					if bspacebt {
+						orderf.releasespacels[uint32(oldboatlen)] = append(spacebt, spacebt2[3:]...)
+					} else {
+						orderf.releasespacels[uint32(oldboatlen)] = spacebt2[3:]
+					}
 				}
 			}
 			orderf.cachemap.Store(uint32(blockind), orderf.setValTouch(ucelldata, oldcntval, true))
@@ -2692,9 +2659,6 @@ func (orderf *OrderFile) nextFillKey(boat, sentence []byte, sentencecuri int) ([
 }
 
 func (orderf *OrderFile) FillKey(key []byte) ([]byte, bool) {
-	if !orderf.isopen {
-		return []byte{}, false
-	}
 	// orderf.markmu.RLock()
 	// _, keyvok := orderf.markrmmap.Load(string(key))
 	// if keyvok {
@@ -2810,10 +2774,6 @@ func (orderf *OrderFile) nextKeyExists(boat, sentence []byte, sentencecuri int) 
 }
 
 func (orderf *OrderFile) KeyExists(key []byte) bool {
-	if !orderf.isopen {
-		return false
-	}
-
 	if orderf.fixkeylen > 0 && len(key) != orderf.fixkeylen {
 		return false
 	}
@@ -2910,9 +2870,6 @@ func (orderf *OrderFile) nextRandGet(boat, sentence []byte, sentencecuri int) (r
 
 //when key is hash that have high rand
 func (orderf *OrderFile) RandGet() (rtkey []byte) {
-	if !orderf.isopen {
-		return nil
-	}
 	// randval := rand.Int63() % (1 + orderf.Count())
 	// if randval == 0 {
 	// 	orderf.markmu.RLock()
@@ -3074,11 +3031,12 @@ func (orderf *OrderFile) nextPushValue3(val3u32 uint64, word []byte, wordcuri in
 		if wordlastcnt > 5 {
 			fixkeylen := orderf.fixkeylen
 			if orderf.fixkeyendbt != nil {
-				if bytes.Index(word, orderf.fixkeyendbt) != -1 {
-					fixkeylen = len(orderf.fixkeyendbt)
+				fep := bytes.Index(word, orderf.fixkeyendbt)
+				if fep != -1 {
+					fixkeylen = fep + len(orderf.fixkeyendbt)
 				}
 			}
-			wordlastmem, _ := orderf.buildLastWordMem(word, wordcuri+matchcnt, fixkeylen-wordcuri+matchcnt)
+			wordlastmem, _ := orderf.buildLastWordMem(word, wordcuri+matchcnt, fixkeylen-(wordcuri+matchcnt))
 			var wordlastboatoffset uint64
 			wordlastboatoffset = orderf.writeLastBlockNoZip(wordlastmem)
 			//check4Zero(wordlastmem)
@@ -3218,8 +3176,9 @@ func (orderf *OrderFile) nextPushKey(boatoffset uint64, word []byte, wordcuri in
 				wordfirstchar := word[wordcuri]
 				fixkeylen := orderf.fixkeylen
 				if orderf.fixkeyendbt != nil {
-					if bytes.Index(word, orderf.fixkeyendbt) != -1 {
-						fixkeylen = len(orderf.fixkeyendbt)
+					fep := bytes.Index(word, orderf.fixkeyendbt)
+					if fep != -1 {
+						fixkeylen = fep + len(orderf.fixkeyendbt)
 					}
 				}
 				wordlastmem, _ := orderf.buildLastWordMem(word, wordcuri, fixkeylen-wordcuri)
@@ -3311,8 +3270,9 @@ func (orderf *OrderFile) nextPushKey(boatoffset uint64, word []byte, wordcuri in
 					wordboatnextfirstchar = word[wordcuri]
 					fixkeylen := orderf.fixkeylen
 					if orderf.fixkeyendbt != nil {
-						if bytes.Index(word, orderf.fixkeyendbt) != -1 {
-							fixkeylen = len(orderf.fixkeyendbt)
+						fep := bytes.Index(word, orderf.fixkeyendbt)
+						if fep != -1 {
+							fixkeylen = fep + len(orderf.fixkeyendbt)
 						}
 					}
 					wordboatnext, _ := orderf.buildLastWordMem(word, wordcuri, fixkeylen-wordcuri)
@@ -3404,9 +3364,6 @@ func (orderf *OrderFile) nextPushKey(boatoffset uint64, word []byte, wordcuri in
 }
 
 func (orderf *OrderFile) Push(fullkey []byte) bool {
-	if !orderf.isopen {
-		return false
-	}
 	if sysidlemem.GetSysIdleMem() < 64*1024*1024 {
 		return false
 	}
@@ -3436,9 +3393,6 @@ func (orderf *OrderFile) Push(fullkey []byte) bool {
 }
 
 func (orderf *OrderFile) PushKey(key, val []byte) bool {
-	if !orderf.isopen {
-		return false
-	}
 	if sysidlemem.GetSysIdleMem() < 64*1024*1024 {
 		return false
 	}
@@ -3466,10 +3420,6 @@ func (orderf *OrderFile) PushKey(key, val []byte) bool {
 }
 
 func (orderf *OrderFile) RealPush(word []byte) bool {
-	if !orderf.isopen {
-		return false
-	}
-
 	if len(word) >= (1<<17)-256 {
 		if len(word) < 5*(1<<17) {
 			var cslen int
@@ -3561,8 +3511,9 @@ func (orderf *OrderFile) RealPush(word []byte) bool {
 				}
 				fixkeylen := orderf.fixkeylen
 				if orderf.fixkeyendbt != nil {
-					if bytes.Index(word, orderf.fixkeyendbt) != -1 {
-						fixkeylen = len(orderf.fixkeyendbt)
+					fep := bytes.Index(word, orderf.fixkeyendbt)
+					if fep != -1 {
+						fixkeylen = fep + len(orderf.fixkeyendbt)
 					}
 				}
 				wordlastmem, _ := orderf.buildLastWordMem(word, 0, fixkeylen-0)
@@ -3739,9 +3690,6 @@ func (orderf *OrderFile) nextRmKey(boatoffsetid uint64, boat, sentence []byte, s
 }
 
 func (orderf *OrderFile) RmKey(key []byte) bool {
-	if !orderf.isopen {
-		return false
-	}
 	orderf.markmu.Lock()
 	//orderf.markrmmap.Store(string(key), true)
 	//orderf.markrmpushmap.Delete(string(key))
@@ -3761,10 +3709,6 @@ func (orderf *OrderFile) RmKey(key []byte) bool {
 }
 
 func (orderf *OrderFile) RealRm(key []byte) bool {
-	if !orderf.isopen {
-		return false
-	}
-
 	//fmt.Println(orderf.path, "filev2buf RmKey:", key)
 	orderf.ordermu.Lock()
 	rootboatoffset := binary.BigEndian.Uint64(append([]byte{0, 0}, orderf.shorttable[0:6]...))
@@ -4506,9 +4450,6 @@ func (orderf *OrderFile) nextNextKey(boat, sentence []byte, sentencecuri int) (f
 }
 
 func (orderf *OrderFile) NextKey(curkey []byte) (nextkey []byte, bnext bool) {
-	if !orderf.isopen {
-		return []byte{}, false
-	}
 	for true {
 		orderf.ordermu.RLock()
 		rootboatoffset := binary.BigEndian.Uint64(append([]byte{0, 0}, orderf.shorttable[0:6]...))
@@ -4731,10 +4672,6 @@ func (orderf *OrderFile) nextPreviousKey(boat, sentence []byte, sentencecuri int
 
 //if previous value for delete,should use RealRm function
 func (orderf *OrderFile) PreviousKey(curkey []byte) (previouskey []byte, bprevious bool) {
-	if !orderf.isopen {
-		return []byte{}, false
-	}
-
 	// runch := make(chan int, 0)
 	// runpos := int64(0)
 	// runpostime := time.Now().Local().Unix()
@@ -4785,16 +4722,6 @@ func (orderf *OrderFile) PreviousKey(curkey []byte) (previouskey []byte, bprevio
 
 //RealRmPush code merge from RealPush RealRm.
 func (orderf *OrderFile) RealRmPush(key, value []byte) bool {
-	defer func() {
-		if er := recover(); er != nil {
-			fmt.Println("RealRmPush 4348", key, value)
-			panic("RealRmPush error")
-		}
-	}()
-	if !orderf.isopen {
-		return false
-	}
-
 	if len(key)+len(value) >= (1<<17)-256 {
 		if len(key)+len(value) < 5*(1<<17) {
 			var cslen int
@@ -4927,8 +4854,9 @@ func (orderf *OrderFile) RealRmPush(key, value []byte) bool {
 				}
 				fixkeylen := orderf.fixkeylen
 				if orderf.fixkeyendbt != nil {
-					if bytes.Index(keyval, orderf.fixkeyendbt) != -1 {
-						fixkeylen = len(orderf.fixkeyendbt)
+					fep := bytes.Index(keyval, orderf.fixkeyendbt)
+					if fep != -1 {
+						fixkeylen = fep + len(orderf.fixkeyendbt)
 					}
 				}
 				wordlastmem, _ := orderf.buildLastWordMem(keyval, 0, fixkeylen-0)
